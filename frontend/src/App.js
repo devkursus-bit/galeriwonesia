@@ -967,14 +967,24 @@ const DetailPage = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API}/articles/${id}`);
-      setArticle(res.data);
-    } catch (e) { console.error(e); }
+      if (res.data && typeof res.data === 'object') {
+        setArticle({
+          ...res.data,
+          images: Array.isArray(res.data.images) ? res.data.images : []
+        });
+      } else {
+        setArticle(null);
+      }
+    } catch (e) { 
+      console.error(e);
+      setArticle(null);
+    }
     setLoading(false);
   };
 
   const allImages = article ? [
     { id: 'main', thumbnail: article.thumbnail, image_url: article.thumbnail },
-    ...(article.images || [])
+    ...(Array.isArray(article.images) ? article.images : [])
   ] : [];
 
   if (loading) {
