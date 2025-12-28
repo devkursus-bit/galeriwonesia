@@ -804,13 +804,13 @@ const HomePage = () => {
             </div>
             <div>
               <h4 className="font-bold mb-4 text-gold">Ikuti Kami</h4>
-              <div className="flex gap-4 text-gray-400 text-sm">
+              <div className="flex gap-4 text-gray-300 text-sm">
                 <a href="https://www.facebook.com/KemenPariwisata" className="hover:text-gold transition">Facebook</a>
                 <a href="http://instagram.com/kemenpar.ri" className="hover:text-gold transition">Instagram</a>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+          <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-400 text-sm">
             © 2025 Galeri Kementerian Pariwisata Republik Indonesia. Download gratis untuk semua.
           </div>
         </div>
