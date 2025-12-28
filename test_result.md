@@ -101,3 +101,135 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Website galeri pariwisata Indonesia dengan fitur: AI Search, peta interaktif Indonesia, lightbox gallery, download gambar HD. Dengan tema Navy Blue & Gold."
+
+backend:
+  - task: "API Stats endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Endpoint /api/stats berfungsi dengan baik"
+
+  - task: "API Articles endpoint with filters"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Endpoint /api/articles dengan filter province, sort, dan is_video berfungsi"
+
+  - task: "API AI Search endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Endpoint /api/ai/search berfungsi dengan OpenAI"
+
+  - task: "API AI Recommend endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Endpoint /api/ai/recommend/{province_id} berfungsi"
+
+frontend:
+  - task: "AI Search Modal styling fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Modal header sekarang terlihat jelas dengan background navy solid. Tags dan input field berfungsi."
+
+  - task: "Map locked (no zoom/pan)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "ZoomableGroup dihapus sehingga peta tidak bisa dizoom/pan. Peta dikunci sesuai permintaan user."
+
+  - task: "Map marker click for province filter"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Klik marker peta sekarang memfilter gallery dan menampilkan ProvincePanel dengan rekomendasi AI"
+
+  - task: "Lightbox gallery"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Lightbox berfungsi dengan navigation, thumbnail strip, dan download button"
+
+  - task: "Gallery filters (province, sort, media type)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Filter dropdown dan button sort berfungsi"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "AI Search Modal styling fix"
+    - "Map locked (no zoom/pan)"
+    - "Map marker click for province filter"
+    - "Lightbox gallery"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Telah memperbaiki 3 issue utama: (1) AI Search Modal styling - header sekarang terlihat jelas, (2) Peta dikunci tidak bisa zoom/pan sesuai permintaan user, (3) Klik marker peta sekarang filter gallery dan tampilkan ProvincePanel. Semua sudah ditest via screenshot. Tolong verifikasi lengkap."
