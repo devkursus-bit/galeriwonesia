@@ -226,10 +226,10 @@ const AISearchModal = ({ isOpen, onClose }) => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">Pencarian Cerdas AI</h2>
-                    <p className="text-white/70 text-sm">Temukan destinasi impian dengan bahasa natural</p>
+                    <p className="text-gray-300 text-sm">Temukan destinasi impian dengan bahasa natural</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg">
+                <button onClick={onClose} className="text-gray-300 hover:text-white p-2 hover:bg-white/10 rounded-lg">
                   <X size={24} />
                 </button>
               </div>
@@ -239,7 +239,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="w-full px-6 py-4 pr-16 rounded-xl text-navy text-lg placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg"
+                  className="w-full px-6 py-4 pr-16 rounded-xl text-navy text-lg placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg bg-white"
                   autoFocus
                 />
                 <button onClick={handleSearch} disabled={loading}
@@ -250,7 +250,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
               <div className="flex flex-wrap gap-2 mt-4">
                 {["Pantai Bali", "Candi Jawa", "Raja Ampat", "Danau Toba", "Komodo"].map((tag) => (
                   <button key={tag} onClick={() => { setQuery(tag); }}
-                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full text-sm transition">
+                    className="bg-gold/30 hover:bg-gold/50 text-white px-3 py-1 rounded-full text-sm transition font-medium">
                     {tag}
                   </button>
                 ))}
