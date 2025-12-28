@@ -408,18 +408,18 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-      className="absolute right-4 top-4 bottom-4 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
-      <div className="bg-gradient-to-br from-navy to-navy-light p-4">
+      className="absolute right-4 top-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10" style={{ maxHeight: "95%" }}>
+      <div className="bg-navy p-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-white text-lg">{province.name}</h3>
             <p className="text-gold text-sm font-medium">{province.article_count} destinasi</p>
           </div>
-          <button onClick={onClose} className="text-gray-300 hover:text-white p-1"><X size={20} /></button>
+          <button onClick={onClose} className="text-white/70 hover:text-white p-1 hover:bg-white/10 rounded"><X size={20} /></button>
         </div>
       </div>
 
-      <div className="p-4 overflow-y-auto max-h-[calc(100%-140px)]">
+      <div className="p-4 overflow-y-auto" style={{ maxHeight: "280px" }}>
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 size={32} className="animate-spin text-gold" />
@@ -427,7 +427,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         ) : (
           <>
             {recommendation?.recommendation && (
-              <div className="mb-4 p-3 bg-gold/10 rounded-lg border border-gold/20">
+              <div className="mb-4 p-3 bg-navy/5 rounded-lg border border-navy/10">
                 <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
               </div>
             )}
@@ -435,11 +435,11 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
               <div className="space-y-3">
                 {recommendation.articles.slice(0, 4).map((article) => (
                   <Link key={article.id} to={`/detail/${article.id}`}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition group">
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
                     <img src={article.thumbnail} alt="" className="w-14 h-14 rounded-lg object-cover" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</p>
-                      <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
                         <Eye size={10} /> {article.total_view?.toLocaleString()}
                       </p>
                     </div>
@@ -451,9 +451,9 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         )}
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
+      <div className="p-4 bg-gray-50 border-t">
         <button onClick={() => navigate(`/gallery?province=${province.id}`)}
-          className="w-full bg-navy text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-navy-light transition">
+          className="w-full bg-navy text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-navy-light transition">
           Lihat Semua <ArrowRight size={16} />
         </button>
       </div>
