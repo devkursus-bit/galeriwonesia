@@ -706,11 +706,11 @@ const HomePage = () => {
       <section className="pt-24 pb-12 bg-gradient-to-b from-navy via-navy-light to-navy">
         <div className="container mx-auto px-4 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Galeri <span className="text-gold">Wonderful Indonesia</span>
+            className="text-4xl md:text-5xl font-bold mb-4">
+            <span className="text-white">Galeri</span> <span className="text-gold">Wonderful Indonesia</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
+            className="text-gray-200 text-lg mb-8 max-w-2xl mx-auto">
             Download gratis foto & video pariwisata Indonesia berkualitas tinggi
           </motion.p>
 
@@ -724,8 +724,8 @@ const HomePage = () => {
                   <Sparkles size={24} className="text-navy" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-navy font-medium">Pencarian Cerdas AI</p>
-                  <p className="text-gray-400 text-sm">Coba: "pantai sunset bali" atau "wisata alam sulawesi"</p>
+                  <p className="text-navy font-semibold">Pencarian Cerdas AI</p>
+                  <p className="text-gray-500 text-sm">Coba: "pantai sunset bali" atau "wisata alam sulawesi"</p>
                 </div>
                 <div className="bg-navy text-white px-6 py-3 rounded-xl font-semibold group-hover:bg-navy-light transition">
                   Cari
