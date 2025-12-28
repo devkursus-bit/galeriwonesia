@@ -32,6 +32,8 @@ import {
   Upload,
   Images,
   ZoomIn,
+  ZoomOut,
+  RotateCcw,
   ArrowRight,
   Filter,
 } from "lucide-react";
