@@ -514,7 +514,7 @@ const FilterBar = ({ provinces, filter, setFilter }) => {
         className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold"
       >
         <option value="">Semua Provinsi</option>
-        {provinces.map((p) => (
+        {Array.isArray(provinces) && provinces.map((p) => (
           <option key={p.id} value={p.id}>{p.name}</option>
         ))}
       </select>
