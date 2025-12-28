@@ -843,30 +843,85 @@ const HomePage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-navy text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <img src="https://woni.sklmb.co/wonderful-indonesia.svg" alt="Wonderful Indonesia" className="h-10 mb-4" />
-              <p className="text-gray-300 text-sm">Galeri Resmi Kementerian Pariwisata Republik Indonesia</p>
+      <footer className="bg-navy text-white">
+        {/* Main Footer */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Logo & Description */}
+            <div className="lg:col-span-2">
+              <img 
+                src="https://kemenparekraf.go.id/_next/image?url=https%3A%2F%2Fapi2.kemenparekraf.go.id%2Fstorage%2Fapp%2Fuploads%2Fpublic%2F621%2F437%2F6d3%2F6214376d3978f205929356.png&w=3840&q=75" 
+                alt="Wonderful Indonesia" 
+                className="h-12 mb-4" 
+              />
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                Seluruh foto dan video bebas digunakan.<br/>
+                Seluruh materi kreatif dilindungi oleh hak cipta Kementerian Pariwisata.
+              </p>
             </div>
+
+            {/* Quick Links */}
             <div>
               <h4 className="font-bold mb-4 text-gold">Tautan</h4>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li><Link to="/" className="hover:text-gold transition">Beranda</Link></li>
-                <li><Link to="/gallery" className="hover:text-gold transition">Galeri</Link></li>
+                <li><Link to="/gallery" className="hover:text-gold transition">Galeri Foto</Link></li>
+                <li><Link to="/videos" className="hover:text-gold transition">Galeri Video</Link></li>
               </ul>
             </div>
+
+            {/* Social Media */}
             <div>
               <h4 className="font-bold mb-4 text-gold">Ikuti Kami</h4>
-              <div className="flex gap-4 text-gray-300 text-sm">
-                <a href="https://www.facebook.com/KemenPariwisata" className="hover:text-gold transition">Facebook</a>
-                <a href="http://instagram.com/kemenpar.ri" className="hover:text-gold transition">Instagram</a>
+              <div className="space-y-3">
+                <a href="https://www.facebook.com/KemenPariwisata" target="_blank" rel="noopener noreferrer" 
+                  className="flex items-center gap-3 text-gray-300 hover:text-gold transition group">
+                  <div className="bg-white/10 group-hover:bg-gold/20 p-2 rounded-lg transition">
+                    <Facebook size={18} />
+                  </div>
+                  <span className="text-sm">KemenPariwisata</span>
+                </a>
+                <a href="https://instagram.com/kemenpariwisata" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-300 hover:text-gold transition group">
+                  <div className="bg-white/10 group-hover:bg-gold/20 p-2 rounded-lg transition">
+                    <Instagram size={18} />
+                  </div>
+                  <span className="text-sm">@kemenpariwisata</span>
+                </a>
+                <a href="https://twitter.com/KemenPariwisata" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-300 hover:text-gold transition group">
+                  <div className="bg-white/10 group-hover:bg-gold/20 p-2 rounded-lg transition">
+                    <Twitter size={18} />
+                  </div>
+                  <span className="text-sm">@KemenPariwisata</span>
+                </a>
+                <a href="https://tiktok.com/@kemenpariwisata" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-300 hover:text-gold transition group">
+                  <div className="bg-white/10 group-hover:bg-gold/20 p-2 rounded-lg transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+                    </svg>
+                  </div>
+                  <span className="text-sm">@kemenpariwisata</span>
+                </a>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-400 text-sm">
-            © 2025 Galeri Kementerian Pariwisata Republik Indonesia. Download gratis untuk semua.
+        </div>
+
+        {/* Bottom Footer */}
+        <div className="border-t border-white/10">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-gray-400 text-sm text-center md:text-left">
+                © 2026 Wonderful Image — Kementerian Pariwisata
+              </p>
+              <div className="flex items-center gap-4 text-gray-400 text-sm">
+                <a href="#" className="hover:text-gold transition">Kebijakan Privasi</a>
+                <span>|</span>
+                <a href="#" className="hover:text-gold transition">Syarat & Ketentuan</a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
