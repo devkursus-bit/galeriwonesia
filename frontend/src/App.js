@@ -451,7 +451,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-white text-lg">{province.name}</h3>
-            <p className="text-gold text-sm font-medium">{province.article_count} destinasi</p>
+            <p className="text-gold text-sm font-medium">{province.article_count} Galeri</p>
           </div>
           <button onClick={onClose} className="text-white/70 hover:text-white p-1 hover:bg-white/10 rounded"><X size={20} /></button>
         </div>
