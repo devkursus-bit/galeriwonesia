@@ -196,9 +196,17 @@ const AISearchModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const response = await axios.post(`${API}/ai/search`, { query });
-      setResults(response.data);
+      if (response.data && typeof response.data === 'object') {
+        setResults({
+          ...response.data,
+          articles: Array.isArray(response.data.articles) ? response.data.articles : []
+        });
+      } else {
+        setResults({ articles: [] });
+      }
     } catch (e) {
       console.error("AI search error:", e);
+      setResults({ articles: [] });
     }
     setLoading(false);
   };
