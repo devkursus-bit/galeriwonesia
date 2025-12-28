@@ -775,8 +775,18 @@ const HomePage = () => {
     setRecLoading(true);
     try {
       const res = await axios.get(`${API}/ai/recommend/${province.id}`);
-      setRecommendation(res.data);
-    } catch (e) { console.error(e); }
+      if (res.data && typeof res.data === 'object') {
+        setRecommendation({
+          ...res.data,
+          articles: Array.isArray(res.data.articles) ? res.data.articles : []
+        });
+      } else {
+        setRecommendation({ articles: [] });
+      }
+    } catch (e) { 
+      console.error(e);
+      setRecommendation({ articles: [] });
+    }
     setRecLoading(false);
   };
 
