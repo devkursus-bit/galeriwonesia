@@ -1004,11 +1004,17 @@ const DetailPage = () => {
                 <div className="p-6 md:p-8">
                   <h1 className="text-2xl md:text-3xl font-bold text-navy mb-4">{article.title}</h1>
                   
-                  <div className="flex flex-wrap items-center gap-4 text-sm mb-6">
+                  <div className="flex flex-wrap items-center gap-3 text-sm mb-6">
                     <span className="flex items-center gap-1 text-gray-500">
                       <MapPin size={16} className="text-gold" />
                       {article.province_name || "Indonesia"}{article.city_name && `, ${article.city_name}`}
                     </span>
+                    {article.posting_date && (
+                      <span className="flex items-center gap-1 text-gray-500">
+                        <Clock size={16} className="text-gold" />
+                        {new Date(article.posting_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                    )}
                     <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                       <Eye size={14} /> {article.total_view?.toLocaleString()} views
                     </span>
