@@ -315,6 +315,18 @@ async def get_stats():
     cur.execute("SELECT COUNT(*) as total FROM \"Province\"")
     total_provinces = cur.fetchone()['total']
     
+    # Total high-res images
+    cur.execute("SELECT COUNT(*) as total FROM \"ArticleContentImage\"")
+    total_images = cur.fetchone()['total']
+    
+    # Total views
+    cur.execute("SELECT COALESCE(SUM(total_view), 0) as total FROM \"Article\" WHERE is_active = true")
+    total_views = cur.fetchone()['total']
+    
+    # Total downloads
+    cur.execute("SELECT COALESCE(SUM(total_download), 0) as total FROM \"ArticleContentImage\"")
+    total_downloads = cur.fetchone()['total']
+    
     cur.close()
     conn.close()
     
@@ -322,7 +334,11 @@ async def get_stats():
         "total_articles": total_articles,
         "total_photos": total_photos,
         "total_videos": total_videos,
-        "total_provinces": total_provinces
+        "total_provinces": total_provinces,
+        "total_images": total_images,
+        "total_views": total_views,
+        "total_downloads": total_downloads
+    }
     }
 
 @api_router.post("/ai/search")
