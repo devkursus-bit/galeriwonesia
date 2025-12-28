@@ -473,7 +473,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
             )}
             {recommendation?.articles?.length > 0 && (
               <div className="space-y-3">
-                {recommendation.articles.slice(0, 4).map((article) => (
+                {Array.isArray(recommendation?.articles) && recommendation.articles.slice(0, 4).map((article) => (
                   <Link key={article.id} to={`/detail/${article.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
                     <img src={article.thumbnail} alt="" loading="lazy" className="w-14 h-14 rounded-lg object-cover" />
