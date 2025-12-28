@@ -271,7 +271,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                       <div key={article.id} onClick={() => goToDetail(article.id)}
                         className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition border border-gray-100">
                         <div className="aspect-video overflow-hidden relative">
-                          <img src={article.thumbnail} alt={article.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <img src={article.thumbnail} alt={article.title} loading="lazy" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition" />
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                             <Eye size={10} /> {article.total_view?.toLocaleString()}
                           </div>
@@ -523,7 +523,7 @@ const ArticleCard = ({ article }) => {
     <Link to={`/detail/${article.id}`}
       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img src={article.thumbnail} alt={article.title}
+        <img src={article.thumbnail} alt={article.title} loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
         {article.is_video && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -870,7 +870,7 @@ const DetailPage = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="relative cursor-pointer group" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}>
-                  <img src={article.thumbnail} alt={article.title} loading="lazy" className="w-full max-h-[500px] object-cover" />
+                  <img src={article.thumbnail} alt={article.title} loading="lazy" loading="lazy" className="w-full max-h-[500px] object-cover" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
                     <div className="bg-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition"><ZoomIn size={32} className="text-navy" /></div>
                   </div>
