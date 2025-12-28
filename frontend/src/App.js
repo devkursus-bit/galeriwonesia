@@ -36,6 +36,9 @@ import {
   RotateCcw,
   ArrowRight,
   Filter,
+  Facebook,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
