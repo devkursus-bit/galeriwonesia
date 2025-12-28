@@ -331,16 +331,51 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
     );
   }
 
+  const [zoom, setZoom] = useState(1);
+  const [center, setCenter] = useState([118, -2]);
+
+  const handleZoomIn = () => {
+    if (zoom < 4) setZoom(z => Math.min(z * 1.5, 4));
+  };
+
+  const handleZoomOut = () => {
+    if (zoom > 1) setZoom(z => Math.max(z / 1.5, 1));
+  };
+
+  const handleReset = () => {
+    setZoom(1);
+    setCenter([118, -2]);
+  };
+
   return (
     <div className="relative w-full overflow-hidden">
+      {/* Zoom Controls */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+        <button onClick={handleZoomIn} 
+          className="bg-navy text-white p-2 rounded-lg hover:bg-navy-light transition shadow-lg disabled:opacity-50"
+          disabled={zoom >= 4} title="Zoom In">
+          <ZoomIn size={18} />
+        </button>
+        <button onClick={handleZoomOut}
+          className="bg-navy text-white p-2 rounded-lg hover:bg-navy-light transition shadow-lg disabled:opacity-50"
+          disabled={zoom <= 1} title="Zoom Out">
+          <ZoomOut size={18} />
+        </button>
+        {zoom > 1 && (
+          <button onClick={handleReset}
+            className="bg-gold text-navy p-2 rounded-lg hover:bg-gold-dark transition shadow-lg" title="Reset">
+            <RotateCcw size={18} />
+          </button>
+        )}
+      </div>
+
       <ComposableMap
         projection="geoMercator"
-        projectionConfig={{ scale: 900, center: [118, -2] }}
+        projectionConfig={{ scale: 900 * zoom, center: center }}
         style={{ width: "100%", height: "auto", maxHeight: "500px" }}
         width={800}
         height={400}
       >
-        {/* Peta dikunci - tanpa ZoomableGroup untuk disable zoom/pan */}
         <Geographies geography={geoData}>
           {({ geographies }) =>
             geographies.map((geo) => {
@@ -387,8 +422,8 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
           return (
             <Marker key={province.id} coordinates={position}>
               <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
-                <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
-                <text textAnchor="middle" y={3} style={{ fontSize: 6, fill: "#FFCC00", fontWeight: "bold", pointerEvents: "none" }}>
+                <circle r={8 / zoom} fill="#002F6C" stroke="#FFCC00" strokeWidth={2 / zoom} />
+                <text textAnchor="middle" y={3 / zoom} style={{ fontSize: 6 / zoom, fill: "#FFCC00", fontWeight: "bold", pointerEvents: "none" }}>
                   {province.article_count}
                 </text>
               </g>
