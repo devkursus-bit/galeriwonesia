@@ -552,6 +552,21 @@ const FilterBar = ({ provinces, filter, setFilter }) => {
 };
 
 // ============================================
+// SKELETON CARD (Loading Placeholder)
+// ============================================
+const SkeletonCard = () => {
+  return (
+    <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 animate-pulse">
+      <div className="aspect-[4/3] bg-gray-200" />
+      <div className="p-4">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-gray-200 rounded w-1/2" />
+      </div>
+    </div>
+  );
+};
+
+// ============================================
 // ARTICLE CARD
 // ============================================
 const ArticleCard = ({ article }) => {
