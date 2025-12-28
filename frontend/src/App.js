@@ -659,32 +659,12 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   );
 };
 
-// Article Card Component
-const ArticleCard = ({ article, compact = false }) => {
-  const handleDownload = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      const response = await fetch(article.thumbnail);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${article.title.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      window.open(article.thumbnail, '_blank');
-    }
-  };
-
+// Article Card Component - Updated for Lightbox
+const ArticleCard = ({ article, compact = false, onClick }) => {
   return (
-    <motion.a
-      href={`/detail/${article.id}`}
-      className={`group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 ${compact ? '' : ''}`}
+    <motion.div
+      onClick={onClick}
+      className={`group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer ${compact ? '' : ''}`}
       whileHover={{ y: -4 }}
       data-testid={`article-card-${article.id}`}
     >
@@ -706,14 +686,12 @@ const ArticleCard = ({ article, compact = false }) => {
           <Eye size={12} /> {article.total_view?.toLocaleString()}
         </div>
         
-        {/* Download Button */}
-        <button
-          onClick={handleDownload}
-          className="absolute bottom-2 right-2 bg-gold hover:bg-gold-dark text-navy p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg"
-          title="Download Gambar"
-        >
-          <Download size={18} />
-        </button>
+        {/* Preview Icon on Hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+          <div className="bg-white/90 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
+            <ZoomIn size={24} className="text-navy" />
+          </div>
+        </div>
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-navy line-clamp-2 group-hover:text-gold transition text-sm">
@@ -724,7 +702,7 @@ const ArticleCard = ({ article, compact = false }) => {
           <span className="truncate">{article.province_name || "Indonesia"}</span>
         </div>
       </div>
-    </motion.a>
+    </motion.div>
   );
 };
 
