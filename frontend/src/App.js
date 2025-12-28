@@ -718,6 +718,31 @@ const HomePage = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState({ sortBy: "recent", isVideo: null });
   const [loadingArticles, setLoadingArticles] = useState(false);
+  
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const nextImage = () => {
+    if (lightboxIndex < articles.length - 1) {
+      setLightboxIndex(lightboxIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (lightboxIndex > 0) {
+      setLightboxIndex(lightboxIndex - 1);
+    }
+  };
 
   useEffect(() => {
     loadInitialData();
