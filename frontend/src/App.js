@@ -384,8 +384,8 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
           return (
             <Marker key={province.id} coordinates={position}>
               <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
-                <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
-                <text textAnchor="middle" y={3} style={{ fontSize: 7, fill: "#FFCC00", fontWeight: "bold" }}>
+                <circle r={10} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
+                <text textAnchor="middle" y={4} style={{ fontSize: 8, fill: "#FFCC00", fontWeight: "bold", pointerEvents: "none" }}>
                   {province.article_count}
                 </text>
               </g>
