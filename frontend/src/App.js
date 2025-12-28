@@ -151,10 +151,10 @@ const StatsSection = ({ stats }) => {
   if (!stats) return null;
   
   const items = [
-    { icon: <Images size={28} />, value: formatNumber(stats.total_images), label: "Foto HD", gradient: "from-blue-500 to-blue-600" },
-    { icon: <Video size={28} />, value: formatNumber(stats.total_videos), label: "Video", gradient: "from-purple-500 to-purple-600" },
-    { icon: <Eye size={28} />, value: formatNumber(stats.total_views), label: "Views", gradient: "from-green-500 to-green-600" },
-    { icon: <Download size={28} />, value: formatNumber(stats.total_downloads), label: "Downloads", gradient: "from-orange-500 to-orange-600" },
+    { icon: <Images size={28} />, value: formatNumber(stats.total_images), label: "Foto HD" },
+    { icon: <Video size={28} />, value: formatNumber(stats.total_videos), label: "Video" },
+    { icon: <Eye size={28} />, value: formatNumber(stats.total_views), label: "Views" },
+    { icon: <Download size={28} />, value: formatNumber(stats.total_downloads), label: "Downloads" },
   ];
 
   return (
@@ -165,7 +165,7 @@ const StatsSection = ({ stats }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.1 }}
-          className={`bg-gradient-to-br ${item.gradient} rounded-xl p-5 text-white shadow-lg text-center`}
+          className="bg-navy rounded-xl p-5 text-white shadow-lg text-center"
         >
           <div className="flex justify-center mb-2">{item.icon}</div>
           <p className="text-3xl font-bold">{item.value}</p>
