@@ -271,7 +271,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                       <div key={article.id} onClick={() => goToDetail(article.id)}
                         className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition border border-gray-100">
                         <div className="aspect-video overflow-hidden relative">
-                          <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <img src={article.thumbnail} alt={article.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition" />
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                             <Eye size={10} /> {article.total_view?.toLocaleString()}
                           </div>
@@ -437,7 +437,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
                 {recommendation.articles.slice(0, 4).map((article) => (
                   <Link key={article.id} to={`/detail/${article.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
-                    <img src={article.thumbnail} alt="" className="w-14 h-14 rounded-lg object-cover" />
+                    <img src={article.thumbnail} alt="" loading="lazy" className="w-14 h-14 rounded-lg object-cover" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</p>
                       <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
@@ -609,7 +609,7 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
             <ChevronLeft size={32} />
           </button>
         )}
-        <img src={currentImage.image_url || currentImage.thumbnail} alt=""
+        <img src={currentImage.image_url || currentImage.thumbnail} alt="" loading="lazy"
           className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl" />
         {currentIndex < images.length - 1 && (
           <button onClick={() => onNavigate(currentIndex + 1)}
@@ -625,7 +625,7 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
             <button key={img.id || idx} onClick={() => onNavigate(idx)}
               className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all
                 ${idx === currentIndex ? 'ring-2 ring-gold scale-110' : 'opacity-50 hover:opacity-80'}`}>
-              <img src={img.thumbnail} alt="" className="w-full h-full object-cover" />
+              <img src={img.thumbnail} alt="" loading="lazy" className="w-full h-full object-cover" />
             </button>
           ))}
           {images.length > 10 && (
@@ -870,7 +870,7 @@ const DetailPage = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="relative cursor-pointer group" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}>
-                  <img src={article.thumbnail} alt={article.title} className="w-full max-h-[500px] object-cover" />
+                  <img src={article.thumbnail} alt={article.title} loading="lazy" className="w-full max-h-[500px] object-cover" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
                     <div className="bg-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition"><ZoomIn size={32} className="text-navy" /></div>
                   </div>
@@ -915,7 +915,7 @@ const DetailPage = () => {
                   {allImages.map((img, idx) => (
                     <div key={img.id || idx} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true); }}
                       className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group">
-                      <img src={img.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
+                      <img src={img.thumbnail} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
                         <ZoomIn size={20} className="text-white opacity-0 group-hover:opacity-100 transition" />
                       </div>
