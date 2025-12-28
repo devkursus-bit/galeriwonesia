@@ -34,6 +34,173 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Lightbox Component - Preview gambar sebelum download
+const Lightbox = ({ images, currentIndex, onClose, onNext, onPrev }) => {
+  const [downloading, setDownloading] = useState(false);
+  
+  if (!images || images.length === 0 || currentIndex < 0) return null;
+  
+  const currentImage = images[currentIndex];
+  
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const response = await fetch(currentImage.thumbnail);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentImage.title?.replace(/[^a-zA-Z0-9]/g, '_') || 'image'}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      window.open(currentImage.thumbnail, '_blank');
+    }
+    setDownloading(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowLeft') onPrev();
+    if (e.key === 'ArrowRight') onNext();
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[200] bg-black/95 flex flex-col"
+        onClick={onClose}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-4">
+            <span className="text-white/60 text-sm">
+              {currentIndex + 1} / {images.length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="bg-gold hover:bg-gold-dark text-navy px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition shadow-lg"
+            >
+              {downloading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Download size={18} />
+              )}
+              Download
+            </button>
+            <button
+              onClick={onClose}
+              className="text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        {/* Main Image Area */}
+        <div className="flex-1 flex items-center justify-center relative px-16" onClick={(e) => e.stopPropagation()}>
+          {/* Previous Button */}
+          {currentIndex > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onPrev(); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition backdrop-blur-sm"
+            >
+              <ChevronLeft size={32} />
+            </button>
+          )}
+
+          {/* Image */}
+          <motion.img
+            key={currentImage.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            src={currentImage.thumbnail}
+            alt={currentImage.title}
+            className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next Button */}
+          {currentIndex < images.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onNext(); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition backdrop-blur-sm"
+            >
+              <ChevronRight size={32} />
+            </button>
+          )}
+        </div>
+
+        {/* Info Panel */}
+        <div className="p-4 bg-gradient-to-t from-black/80 to-transparent" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-3xl mx-auto">
+            <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
+              {currentImage.title}
+            </h3>
+            <div className="flex flex-wrap items-center gap-4 text-white/60 text-sm">
+              {currentImage.province_name && (
+                <span className="flex items-center gap-1">
+                  <MapPin size={14} className="text-gold" />
+                  {currentImage.province_name}
+                </span>
+              )}
+              {currentImage.total_view && (
+                <span className="flex items-center gap-1">
+                  <Eye size={14} />
+                  {currentImage.total_view.toLocaleString()} views
+                </span>
+              )}
+              {currentImage.category && (
+                <span className="bg-gold/20 text-gold px-2 py-0.5 rounded">
+                  {currentImage.category}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnail Strip */}
+        <div className="p-4 bg-black/50" onClick={(e) => e.stopPropagation()}>
+          <div className="flex justify-center gap-2 overflow-x-auto max-w-4xl mx-auto scrollbar-hide">
+            {images.map((img, idx) => (
+              <button
+                key={img.id}
+                onClick={() => {
+                  if (idx < currentIndex) onPrev();
+                  else if (idx > currentIndex) onNext();
+                }}
+                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all ${
+                  idx === currentIndex 
+                    ? 'ring-2 ring-gold scale-110' 
+                    : 'opacity-50 hover:opacity-80'
+                }`}
+              >
+                <img
+                  src={img.thumbnail}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 // Indonesia Map SVG Component with clickable provinces
 const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
   return (
