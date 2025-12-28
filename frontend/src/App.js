@@ -946,7 +946,10 @@ const GalleryPage = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ sortBy: "recent", isVideo: null, provinceId: null });
   const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
+  const ITEMS_PER_PAGE = 24;
 
   useEffect(() => { loadProvinces(); }, []);
   useEffect(() => { setPage(0); loadArticles(true); }, [filter]);
@@ -963,19 +966,39 @@ const GalleryPage = () => {
     try {
       const params = new URLSearchParams();
       params.append("sort_by", filter.sortBy);
-      params.append("limit", "24");
-      params.append("offset", reset ? 0 : page * 24);
+      params.append("limit", ITEMS_PER_PAGE.toString());
+      params.append("offset", reset ? "0" : (page * ITEMS_PER_PAGE).toString());
       if (filter.isVideo !== null) params.append("is_video", filter.isVideo);
       if (filter.provinceId) params.append("province_id", filter.provinceId);
-      const res = await axios.get(`${API}/articles?${params.toString()}`);
-      setArticles(prev => reset ? res.data : [...prev, ...res.data]);
+      
+      const res = await axios.get(`${API}/articles/paginated?${params.toString()}`);
+      setArticles(prev => reset ? res.data.articles : [...prev, ...res.data.articles]);
+      setTotal(res.data.total);
+      setHasMore(res.data.has_more);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
 
   const loadMore = () => {
-    setPage(p => p + 1);
-    loadArticles(false);
+    const newPage = page + 1;
+    setPage(newPage);
+    // Load with new offset
+    (async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.append("sort_by", filter.sortBy);
+        params.append("limit", ITEMS_PER_PAGE.toString());
+        params.append("offset", (newPage * ITEMS_PER_PAGE).toString());
+        if (filter.isVideo !== null) params.append("is_video", filter.isVideo);
+        if (filter.provinceId) params.append("province_id", filter.provinceId);
+        
+        const res = await axios.get(`${API}/articles/paginated?${params.toString()}`);
+        setArticles(prev => [...prev, ...res.data.articles]);
+        setHasMore(res.data.has_more);
+      } catch (e) { console.error(e); }
+      setLoading(false);
+    })();
   };
 
   return (
@@ -988,7 +1011,9 @@ const GalleryPage = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-navy">Galeri Foto & Video</h1>
-              <p className="text-gray-500">Download gratis untuk semua keperluan</p>
+              <p className="text-gray-600">
+                {total > 0 ? `Menampilkan ${articles.length} dari ${total.toLocaleString()} item` : "Download gratis untuk semua keperluan"}
+              </p>
             </div>
             <FilterBar provinces={provinces} filter={filter} setFilter={setFilter} />
           </div>
@@ -997,17 +1022,23 @@ const GalleryPage = () => {
             <div className="flex justify-center py-12"><Loader2 size={40} className="animate-spin text-gold" /></div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
+              {articles.map((article, idx) => <ArticleCard key={`${article.id}-${idx}`} article={article} />)}
             </div>
           )}
 
-          <div className="text-center mt-10">
-            <button onClick={loadMore} disabled={loading}
-              className="bg-navy text-white px-8 py-3 rounded-full hover:bg-navy-light transition font-medium disabled:opacity-50">
-              {loading ? <Loader2 size={20} className="animate-spin inline mr-2" /> : null}
-              Muat Lebih Banyak
-            </button>
-          </div>
+          {articles.length > 0 && (
+            <div className="text-center mt-10">
+              {hasMore ? (
+                <button onClick={loadMore} disabled={loading}
+                  className="bg-navy text-white px-8 py-3 rounded-full hover:bg-navy-light transition font-medium disabled:opacity-50 shadow-lg">
+                  {loading ? <Loader2 size={20} className="animate-spin inline mr-2" /> : null}
+                  Muat Lebih Banyak
+                </button>
+              ) : (
+                <p className="text-gray-500">✓ Semua item sudah ditampilkan</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
