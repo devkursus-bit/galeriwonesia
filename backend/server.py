@@ -158,7 +158,7 @@ async def get_articles(
     category_id: Optional[int] = None,
     is_video: Optional[bool] = None,
     search: Optional[str] = None,
-    sort_by: str = Query("recent", enum=["recent", "popular"]),
+    sort_by: str = Query("recent", enum=["recent", "popular", "downloads"]),
     limit: int = 20,
     offset: int = 0
 ):
@@ -169,7 +169,8 @@ async def get_articles(
     query = """
         SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
                p.name as province_name, c.name as city_name, 
-               a.tags_csv as tags, a.posting_date, cat.label as category
+               a.tags_csv as tags, a.posting_date, cat.label as category,
+               COALESCE((SELECT SUM(total_download) FROM "ArticleContentImage" WHERE id_article = a.id), 0) as total_download
         FROM "Article" a
         LEFT JOIN "Province" p ON a.id_province = p.id
         LEFT JOIN "City" c ON a.id_city = c.id
