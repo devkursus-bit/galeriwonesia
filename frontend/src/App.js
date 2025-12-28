@@ -1096,8 +1096,11 @@ const GalleryPage = () => {
   const loadProvinces = async () => {
     try {
       const res = await axios.get(`${API}/provinces`);
-      setProvinces(res.data);
-    } catch (e) { console.error(e); }
+      setProvinces(Array.isArray(res.data) ? res.data : []);
+    } catch (e) { 
+      console.error(e);
+      setProvinces([]);
+    }
   };
 
   const loadArticles = async (reset = false) => {
@@ -1111,10 +1114,16 @@ const GalleryPage = () => {
       if (filter.provinceId) params.append("province_id", filter.provinceId);
       
       const res = await axios.get(`${API}/articles/paginated?${params.toString()}`);
-      setArticles(prev => reset ? res.data.articles : [...prev, ...res.data.articles]);
-      setTotal(res.data.total);
-      setHasMore(res.data.has_more);
-    } catch (e) { console.error(e); }
+      const newArticles = Array.isArray(res.data?.articles) ? res.data.articles : [];
+      setArticles(prev => reset ? newArticles : [...(prev || []), ...newArticles]);
+      setTotal(res.data?.total || 0);
+      setHasMore(res.data?.has_more || false);
+    } catch (e) { 
+      console.error(e);
+      if (reset) setArticles([]);
+      setTotal(0);
+      setHasMore(false);
+    }
     setLoading(false);
   };
 
@@ -1133,9 +1142,13 @@ const GalleryPage = () => {
         if (filter.provinceId) params.append("province_id", filter.provinceId);
         
         const res = await axios.get(`${API}/articles/paginated?${params.toString()}`);
-        setArticles(prev => [...prev, ...res.data.articles]);
-        setHasMore(res.data.has_more);
-      } catch (e) { console.error(e); }
+        const newArticles = Array.isArray(res.data?.articles) ? res.data.articles : [];
+        setArticles(prev => [...(prev || []), ...newArticles]);
+        setHasMore(res.data?.has_more || false);
+      } catch (e) { 
+        console.error(e);
+        setHasMore(false);
+      }
       setLoading(false);
     })();
   };
