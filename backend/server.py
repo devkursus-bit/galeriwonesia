@@ -342,7 +342,7 @@ async def ai_search(request: SearchRequest):
 Tugasmu adalah menganalisis query pencarian dan mengekstrak:
 1. province: nama provinsi yang dimaksud (harus salah satu dari: {', '.join(provinces)}) atau null
 2. category: kategori wisata (harus salah satu dari: {', '.join(categories)}) atau null  
-3. keywords: kata kunci pencarian
+3. keywords: kata kunci pencarian yang relevan (bisa berupa nama tempat, aktivitas, dll)
 4. is_video: true jika mencari video, false jika foto, null jika tidak spesifik
 
 Jawab dalam format JSON:
@@ -360,7 +360,7 @@ Jawab dalam format JSON:
         
         ai_result = json.loads(response.choices[0].message.content)
         
-        # Build search query
+        # Build search query - prioritize province match
         query = """
             SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
                    p.name as province_name, c.name as city_name, 
@@ -372,19 +372,17 @@ Jawab dalam format JSON:
             WHERE a.is_active = true
         """
         params = []
+        has_filter = False
         
         if ai_result.get('province'):
             query += " AND LOWER(p.name) LIKE LOWER(%s)"
             params.append(f"%{ai_result['province']}%")
+            has_filter = True
         
         if ai_result.get('category'):
             query += " AND LOWER(cat.label) LIKE LOWER(%s)"
             params.append(f"%{ai_result['category']}%")
-        
-        if ai_result.get('keywords'):
-            query += " AND (LOWER(a.title) LIKE LOWER(%s) OR LOWER(a.tags_csv) LIKE LOWER(%s))"
-            keywords = f"%{ai_result['keywords']}%"
-            params.extend([keywords, keywords])
+            has_filter = True
         
         if ai_result.get('is_video') is not None:
             query += " AND a.is_video = %s"
@@ -394,6 +392,24 @@ Jawab dalam format JSON:
         
         cur.execute(query, params)
         articles = cur.fetchall()
+        
+        # If no results with province filter, try keyword search
+        if len(articles) == 0 and ai_result.get('keywords'):
+            query2 = """
+                SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
+                       p.name as province_name, c.name as city_name, 
+                       a.tags_csv as tags, a.posting_date, cat.label as category
+                FROM "Article" a
+                LEFT JOIN "Province" p ON a.id_province = p.id
+                LEFT JOIN "City" c ON a.id_city = c.id
+                LEFT JOIN "Category" cat ON a.id_category = cat.id
+                WHERE a.is_active = true
+                AND (LOWER(a.title) LIKE LOWER(%s) OR LOWER(a.tags_csv) LIKE LOWER(%s))
+                ORDER BY a.total_view DESC LIMIT 12
+            """
+            keywords = f"%{ai_result['keywords']}%"
+            cur.execute(query2, [keywords, keywords])
+            articles = cur.fetchall()
         
         cur.close()
         conn.close()
