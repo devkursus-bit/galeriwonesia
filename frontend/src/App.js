@@ -782,7 +782,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">Jelajahi Peta Indonesia</h2>
-            <p className="text-gray-600">Klik provinsi untuk melihat rekomendasi destinasi</p>
+            <p className="text-gray-600">Klik provinsi untuk melihat rekomendasi Galeri</p>
           </div>
           <div className="bg-gray-100 rounded-2xl p-2 md:p-4 relative shadow-inner overflow-hidden">
             <IndonesiaMap provinces={provinces} onProvinceClick={handleProvinceClick} selectedProvince={selectedProvince} />
