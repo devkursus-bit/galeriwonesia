@@ -844,7 +844,7 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
+              {Array.isArray(articles) && articles.map((article) => <ArticleCard key={article.id} article={article} />)}
             </div>
           )}
 
