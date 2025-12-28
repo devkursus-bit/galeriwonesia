@@ -1155,7 +1155,7 @@ const GalleryPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {articles.map((article, idx) => <ArticleCard key={`${article.id}-${idx}`} article={article} />)}
+              {Array.isArray(articles) && articles.map((article, idx) => <ArticleCard key={`${article.id}-${idx}`} article={article} />)}
             </div>
           )}
 
