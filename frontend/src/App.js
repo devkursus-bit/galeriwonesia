@@ -107,7 +107,7 @@ const Header = ({ onOpenSearch }) => {
             />
             <div>
               <h1 style={{ color: "#002F6C" }} className="font-bold text-sm sm:text-lg leading-tight">Kementerian Pariwisata</h1>
-              <p style={{ color: "#002F6C", opacity: 0.6 }} className="text-[10px] sm:text-xs">Galeri Wonderful Indonesia</p>
+              <p style={{ color: "#002F6C", opacity: 0.6 }} className="text-[10px] sm:text-xs">Wonderful Image</p>
             </div>
           </Link>
 
@@ -757,7 +757,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold mb-4 text-gold">
-            Galeri Wonderful Indonesia
+            Wonderful Image
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="text-gold/80 text-lg mb-8 max-w-2xl mx-auto">
