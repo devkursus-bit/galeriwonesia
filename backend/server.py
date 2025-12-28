@@ -133,31 +133,34 @@ async def root():
 @api_router.get("/provinces", response_model=List[Province])
 async def get_provinces():
     """Get all provinces with article count"""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    
-    cur.execute("""
-        SELECT p.id, p.name, COUNT(a.id) as article_count
-        FROM "Province" p
-        LEFT JOIN "Article" a ON p.id = a.id_province AND a.is_active = true
-        GROUP BY p.id, p.name
-        ORDER BY p.name
-    """)
-    
-    provinces = []
-    for row in cur.fetchall():
-        coords = PROVINCE_COORDINATES.get(row['name'], {"lat": 0, "lng": 0})
-        provinces.append({
-            "id": row['id'],
-            "name": row['name'],
-            "article_count": row['article_count'],
-            "lat": coords['lat'],
-            "lng": coords['lng']
-        })
-    
-    cur.close()
-    conn.close()
-    return provinces
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT p.id, p.name, COALESCE(COUNT(a.id), 0) as article_count
+            FROM "Province" p
+            LEFT JOIN "Article" a ON p.id = a.id_province AND a.is_active = true
+            GROUP BY p.id, p.name
+            ORDER BY p.name
+        """)
+        
+        provinces = []
+        for row in cur.fetchall():
+            coords = PROVINCE_COORDINATES.get(row['name'], {"lat": 0, "lng": 0})
+            provinces.append({
+                "id": row['id'],
+                "name": row['name'],
+                "article_count": row['article_count'] if row['article_count'] is not None else 0,
+                "lat": coords['lat'],
+                "lng": coords['lng']
+            })
+        
+        cur.close()
+        conn.close()
+        return provinces
+    except Exception as e:
+        return []
 
 @api_router.get("/articles", response_model=List[Article])
 async def get_articles(
