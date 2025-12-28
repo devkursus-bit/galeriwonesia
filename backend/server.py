@@ -72,6 +72,11 @@ class ArticleDetail(BaseModel):
 class SearchRequest(BaseModel):
     query: str
 
+class ArticlesResponse(BaseModel):
+    articles: List[Article]
+    total: int
+    has_more: bool
+
 class AIRecommendation(BaseModel):
     recommendation: str
     articles: List[Article]
