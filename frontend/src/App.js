@@ -689,6 +689,8 @@ const HomePage = () => {
 
   const handleProvinceClick = async (province) => {
     setSelectedProvince(province);
+    // Set filter untuk provinsi yang diklik
+    setFilter(f => ({ ...f, provinceId: province.id.toString() }));
     setRecLoading(true);
     try {
       const res = await axios.get(`${API}/ai/recommend/${province.id}`);
