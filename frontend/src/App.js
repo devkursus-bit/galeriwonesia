@@ -573,12 +573,18 @@ const SkeletonCard = () => {
 // ARTICLE CARD
 // ============================================
 const ArticleCard = ({ article }) => {
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   return (
     <Link to={`/detail/${article.id}`}
       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img src={article.thumbnail} alt={article.title} loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+          className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
         {article.is_video && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
             <div className="bg-white/90 p-3 rounded-full"><Play size={24} className="text-navy" /></div>
@@ -602,9 +608,17 @@ const ArticleCard = ({ article }) => {
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-navy line-clamp-2 group-hover:text-gold transition text-sm">{article.title}</h3>
-        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <MapPin size={12} className="text-gold" />
-          <span className="truncate">{article.province_name || "Indonesia"}</span>
+        <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <span className="flex items-center gap-1 truncate">
+            <MapPin size={12} className="text-gold flex-shrink-0" />
+            <span className="truncate">{article.province_name || "Indonesia"}</span>
+          </span>
+          {article.posting_date && (
+            <span className="flex items-center gap-1 text-gray-400 flex-shrink-0">
+              <Clock size={12} />
+              {formatDate(article.posting_date)}
+            </span>
+          )}
         </div>
       </div>
     </Link>
