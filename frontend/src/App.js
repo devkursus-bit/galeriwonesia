@@ -312,6 +312,8 @@ const AISearchModal = ({ isOpen, onClose }) => {
 // ============================================
 const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
   const [geoData, setGeoData] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [center, setCenter] = useState([118, -2]);
 
   useEffect(() => {
     fetch(INDONESIA_TOPO)
@@ -325,17 +327,6 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
     return provinces.find(p => p.name === dbName);
   };
 
-  if (!geoData) {
-    return (
-      <div className="h-[400px] flex items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-gold" />
-      </div>
-    );
-  }
-
-  const [zoom, setZoom] = useState(1);
-  const [center, setCenter] = useState([118, -2]);
-
   const handleZoomIn = () => {
     if (zoom < 4) setZoom(z => Math.min(z * 1.5, 4));
   };
@@ -348,6 +339,14 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
     setZoom(1);
     setCenter([118, -2]);
   };
+
+  if (!geoData) {
+    return (
+      <div className="h-[400px] flex items-center justify-center">
+        <Loader2 size={40} className="animate-spin text-gold" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full overflow-hidden">
