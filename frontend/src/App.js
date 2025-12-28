@@ -593,22 +593,22 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-[200] bg-black/95 flex flex-col" onClick={onClose}>
       
-      <div className="flex items-center justify-between p-4" onClick={(e) => e.stopPropagation()}>
-        <span className="text-white/60 text-sm font-medium">{currentIndex + 1} / {images.length}</span>
+      <div className="flex items-center justify-between p-4 bg-black/50" onClick={(e) => e.stopPropagation()}>
+        <span className="text-gray-300 text-sm font-medium">{currentIndex + 1} / {images.length}</span>
         <div className="flex items-center gap-3">
           <button onClick={handleDownload} disabled={downloading}
             className="bg-gold hover:bg-gold-dark text-navy px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition shadow-lg">
             {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
             Download HD
           </button>
-          <button onClick={onClose} className="text-white/70 hover:text-white p-2"><X size={24} /></button>
+          <button onClick={onClose} className="text-gray-300 hover:text-white p-2 bg-white/10 rounded-lg"><X size={24} /></button>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center relative px-16" onClick={(e) => e.stopPropagation()}>
         {currentIndex > 0 && (
           <button onClick={() => onNavigate(currentIndex - 1)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-4 rounded-full transition">
             <ChevronLeft size={32} />
           </button>
         )}
@@ -616,13 +616,13 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
           className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl" />
         {currentIndex < images.length - 1 && (
           <button onClick={() => onNavigate(currentIndex + 1)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-4 rounded-full transition">
             <ChevronRight size={32} />
           </button>
         )}
       </div>
 
-      <div className="p-4" onClick={(e) => e.stopPropagation()}>
+      <div className="p-4 bg-black/50" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-center gap-2 overflow-x-auto max-w-4xl mx-auto scrollbar-hide">
           {images.slice(0, 10).map((img, idx) => (
             <button key={img.id || idx} onClick={() => onNavigate(idx)}
@@ -632,7 +632,7 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
             </button>
           ))}
           {images.length > 10 && (
-            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center text-white text-sm font-medium">
+            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-navy/80 flex items-center justify-center text-white text-sm font-medium">
               +{images.length - 10}
             </div>
           )}
