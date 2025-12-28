@@ -251,6 +251,12 @@ async def get_article_detail(article_id: int):
     """, [article_id])
     images = cur.fetchall()
     
+    # Calculate total downloads for this article
+    cur.execute("""
+        SELECT COALESCE(SUM(total_download), 0) as total FROM "ArticleContentImage" WHERE id_article = %s
+    """, [article_id])
+    total_download = cur.fetchone()['total']
+    
     # Increment view count
     cur.execute("""
         UPDATE "Article" SET total_view = total_view + 1 WHERE id = %s
@@ -263,7 +269,8 @@ async def get_article_detail(article_id: int):
     return {
         **dict(article),
         "content": content,
-        "images": [dict(img) for img in images]
+        "images": [dict(img) for img in images],
+        "total_download": total_download
     }
 
 @api_router.get("/categories")
