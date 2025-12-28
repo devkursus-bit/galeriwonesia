@@ -40,8 +40,8 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Indonesia TopoJSON URL
-const INDONESIA_TOPO = "https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-provinces-simplified.json";
+// Indonesia GeoJSON URL - working URL
+const INDONESIA_TOPO = "https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-province.json";
 
 // Province coordinates mapping
 const PROVINCE_COORDS = {
