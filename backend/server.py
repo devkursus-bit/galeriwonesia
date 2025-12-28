@@ -218,6 +218,79 @@ async def get_articles(
     conn.close()
     return articles
 
+@api_router.get("/articles/paginated", response_model=ArticlesResponse)
+async def get_articles_paginated(
+    province_id: Optional[int] = None,
+    category_id: Optional[int] = None,
+    is_video: Optional[bool] = None,
+    search: Optional[str] = None,
+    sort_by: str = Query("recent", enum=["recent", "popular", "downloads"]),
+    limit: int = 24,
+    offset: int = 0
+):
+    """Get articles with pagination info"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Build WHERE clause
+    where_clause = "WHERE a.is_active = true"
+    params = []
+    
+    if province_id:
+        where_clause += " AND a.id_province = %s"
+        params.append(province_id)
+    
+    if category_id:
+        where_clause += " AND a.id_category = %s"
+        params.append(category_id)
+    
+    if is_video is not None:
+        where_clause += " AND a.is_video = %s"
+        params.append(is_video)
+    
+    if search:
+        where_clause += " AND (LOWER(a.title) LIKE LOWER(%s) OR LOWER(a.tags_csv) LIKE LOWER(%s))"
+        search_param = f"%{search}%"
+        params.extend([search_param, search_param])
+    
+    # Get total count
+    count_query = f'SELECT COUNT(*) FROM "Article" a {where_clause}'
+    cur.execute(count_query, params)
+    total = cur.fetchone()[0]
+    
+    # Get articles
+    query = f"""
+        SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
+               p.name as province_name, c.name as city_name, 
+               a.tags_csv as tags, a.posting_date, cat.label as category,
+               COALESCE((SELECT SUM(total_download) FROM "ArticleContentImage" WHERE id_article = a.id), 0) as total_download
+        FROM "Article" a
+        LEFT JOIN "Province" p ON a.id_province = p.id
+        LEFT JOIN "City" c ON a.id_city = c.id
+        LEFT JOIN "Category" cat ON a.id_category = cat.id
+        {where_clause}
+    """
+    
+    if sort_by == "popular":
+        query += " ORDER BY a.total_view DESC"
+    elif sort_by == "downloads":
+        query += " ORDER BY total_download DESC"
+    else:
+        query += " ORDER BY a.posting_date DESC"
+    
+    query += " LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
+    
+    cur.execute(query, params)
+    articles = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    has_more = (offset + len(articles)) < total
+    
+    return ArticlesResponse(articles=articles, total=total, has_more=has_more)
+
 @api_router.get("/articles/{article_id}", response_model=ArticleDetail)
 async def get_article_detail(article_id: int):
     """Get article detail with content and images"""
