@@ -707,10 +707,10 @@ const HomePage = () => {
         <div className="container mx-auto px-4 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-white">Galeri</span> <span className="text-gold">Wonderful Indonesia</span>
+            <span className="text-gold">Galeri</span> <span className="text-gold">Wonderful Indonesia</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-gray-200 text-lg mb-8 max-w-2xl mx-auto">
+            className="text-white text-lg mb-8 max-w-2xl mx-auto">
             Download gratis foto & video pariwisata Indonesia berkualitas tinggi
           </motion.p>
 
