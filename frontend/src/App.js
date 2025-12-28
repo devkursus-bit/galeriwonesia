@@ -5,6 +5,13 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  Marker,
+  ZoomableGroup,
+} from "react-simple-maps";
+import {
   Search,
   MapPin,
   Camera,
@@ -23,255 +30,108 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  Sun,
-  Maximize2,
-  Globe,
-  ZoomIn,
   Upload,
   Images,
-  BarChart3,
+  ZoomIn,
   ArrowRight,
+  Filter,
 } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// ============================================
-// INDONESIA MAP SVG - Proper dengan provinsi
-// ============================================
-const IndonesiaMapSVG = ({ provinces, onProvinceClick, selectedProvince }) => {
-  // Koordinat provinsi yang benar
-  const PROVINCE_POSITIONS = {
-    "ACEH": { x: 95, y: 85 },
-    "SUMATERA UTARA": { x: 115, y: 110 },
-    "SUMATERA BARAT": { x: 100, y: 145 },
-    "RIAU": { x: 130, y: 130 },
-    "JAMBI": { x: 125, y: 165 },
-    "SUMATERA SELATAN": { x: 130, y: 195 },
-    "BENGKULU": { x: 110, y: 190 },
-    "LAMPUNG": { x: 140, y: 225 },
-    "KEPULAUAN BANGKA BELITUNG": { x: 160, y: 200 },
-    "KEPULAUAN RIAU": { x: 165, y: 120 },
-    "DKI JAKARTA": { x: 175, y: 255 },
-    "JAWA BARAT": { x: 190, y: 265 },
-    "JAWA TENGAH": { x: 230, y: 275 },
-    "DI YOGYAKARTA": { x: 225, y: 285 },
-    "JAWA TIMUR": { x: 275, y: 275 },
-    "BANTEN": { x: 165, y: 265 },
-    "BALI": { x: 310, y: 290 },
-    "NUSA TENGGARA BARAT": { x: 345, y: 295 },
-    "NUSA TENGGARA TIMUR": { x: 400, y: 305 },
-    "KALIMANTAN BARAT": { x: 210, y: 165 },
-    "KALIMANTAN TENGAH": { x: 255, y: 185 },
-    "KALIMANTAN SELATAN": { x: 275, y: 215 },
-    "KALIMANTAN TIMUR": { x: 290, y: 150 },
-    "KALIMANTAN UTARA": { x: 305, y: 110 },
-    "SULAWESI UTARA": { x: 385, y: 135 },
-    "SULAWESI TENGAH": { x: 375, y: 175 },
-    "SULAWESI SELATAN": { x: 360, y: 220 },
-    "SULAWESI TENGGARA": { x: 390, y: 215 },
-    "GORONTALO": { x: 395, y: 150 },
-    "SULAWESI BARAT": { x: 350, y: 200 },
-    "MALUKU": { x: 465, y: 195 },
-    "MALUKU UTARA": { x: 455, y: 145 },
-    "PAPUA": { x: 580, y: 190 },
-    "PAPUA BARAT": { x: 510, y: 175 },
-    "PAPUA BARAT DAYA": { x: 495, y: 195 },
-  };
+// Indonesia TopoJSON URL
+const INDONESIA_TOPO = "https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-provinces-simplified.json";
 
-  return (
-    <div className="relative w-full">
-      <svg viewBox="0 0 700 380" className="w-full h-auto">
-        <defs>
-          <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#B8962E" stopOpacity="0.9" />
-          </linearGradient>
-          <filter id="shadow">
-            <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.3"/>
-          </filter>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Background ocean */}
-        <rect width="700" height="380" fill="#f0f4f8" rx="16"/>
-        
-        {/* Simplified Indonesia silhouette */}
-        {/* Sumatra */}
-        <path d="M60,70 Q80,60 100,70 L120,85 Q140,100 145,130 L150,170 Q155,200 145,230 L130,260 Q115,280 95,275 L80,250 Q65,220 60,180 L55,130 Q55,90 60,70 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Kalimantan */}
-        <path d="M180,100 Q220,85 260,95 L300,110 Q320,130 315,170 L305,210 Q290,240 250,235 L210,220 Q180,200 175,160 L175,130 Q175,110 180,100 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Sulawesi */}
-        <path d="M340,120 Q360,110 380,115 L400,130 Q410,145 400,170 L395,190 Q400,210 395,235 L380,255 Q360,265 345,250 L340,220 Q335,190 345,165 L350,145 Q345,130 340,120 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Java */}
-        <path d="M150,250 L180,245 Q220,240 260,245 L300,250 Q330,255 345,265 L340,280 Q310,290 270,285 L220,280 Q180,275 155,265 L150,250 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Bali & Nusa Tenggara */}
-        <path d="M350,280 Q370,275 400,280 L450,290 Q480,300 470,315 L430,320 Q390,315 360,305 L350,280 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Maluku */}
-        <path d="M440,140 Q460,135 475,145 L485,165 Q490,185 480,205 L465,215 Q445,220 435,200 L430,170 Q430,150 440,140 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-        
-        {/* Papua */}
-        <path d="M490,130 Q540,115 590,125 L630,145 Q650,170 640,210 L620,250 Q580,270 530,260 L500,240 Q480,210 485,170 L490,130 Z" 
-          fill="url(#mapGradient)" stroke="#002F6C" strokeWidth="1" filter="url(#shadow)" className="hover:brightness-110 transition-all"/>
-
-        {/* Province markers */}
-        {provinces.map((province) => {
-          const pos = PROVINCE_POSITIONS[province.name];
-          if (!pos) return null;
-          const isSelected = selectedProvince?.id === province.id;
-          
-          return (
-            <g key={province.id} onClick={() => onProvinceClick(province)} className="cursor-pointer">
-              {/* Pulse animation for selected */}
-              {isSelected && (
-                <circle cx={pos.x} cy={pos.y} r="20" fill="#FFCC00" opacity="0.3" className="animate-ping"/>
-              )}
-              {/* Main marker */}
-              <circle 
-                cx={pos.x} 
-                cy={pos.y} 
-                r={isSelected ? 14 : 10}
-                fill="#002F6C" 
-                stroke="#FFCC00" 
-                strokeWidth={isSelected ? 3 : 2}
-                filter={isSelected ? "url(#glow)" : ""}
-                className="hover:r-14 transition-all"
-              />
-              {/* Count */}
-              <text 
-                x={pos.x} 
-                y={pos.y + 4} 
-                textAnchor="middle" 
-                fill="#FFCC00" 
-                fontSize="8" 
-                fontWeight="bold"
-              >
-                {province.article_count}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
+// Province coordinates mapping
+const PROVINCE_COORDS = {
+  "Aceh": [96.7, 4.7], "Sumatera Utara": [99.5, 2.1], "Sumatera Barat": [100.4, -0.9],
+  "Riau": [102.1, 0.5], "Jambi": [103.6, -1.6], "Sumatera Selatan": [104.8, -3.3],
+  "Bengkulu": [102.3, -3.8], "Lampung": [105.0, -4.6], "Kepulauan Bangka Belitung": [106.4, -2.7],
+  "Kepulauan Riau": [104.5, 1.1], "DKI Jakarta": [106.8, -6.2], "Jawa Barat": [107.6, -6.9],
+  "Jawa Tengah": [110.4, -7.2], "DI Yogyakarta": [110.4, -7.8], "Jawa Timur": [112.8, -7.5],
+  "Banten": [106.1, -6.4], "Bali": [115.2, -8.4], "Nusa Tenggara Barat": [117.4, -8.7],
+  "Nusa Tenggara Timur": [121.1, -8.7], "Kalimantan Barat": [110.0, 0.0],
+  "Kalimantan Tengah": [113.4, -1.7], "Kalimantan Selatan": [115.3, -3.1],
+  "Kalimantan Timur": [116.4, 0.5], "Kalimantan Utara": [117.4, 3.1],
+  "Sulawesi Utara": [124.8, 1.5], "Sulawesi Tengah": [121.4, -1.4],
+  "Sulawesi Selatan": [120.0, -3.7], "Sulawesi Tenggara": [122.5, -4.1],
+  "Gorontalo": [122.4, 0.7], "Sulawesi Barat": [119.4, -2.8],
+  "Maluku": [128.1, -3.2], "Maluku Utara": [127.8, 1.6],
+  "Papua Barat": [133.2, -1.4], "Papua": [138.9, -4.3],
 };
 
-// ============================================
-// STATISTICS BANNER
-// ============================================
-const StatsBanner = ({ stats }) => {
-  if (!stats) return null;
-  
-  const items = [
-    { icon: <Camera size={24} />, value: stats.total_photos?.toLocaleString() || "0", label: "Foto", color: "from-blue-500 to-blue-600" },
-    { icon: <Video size={24} />, value: stats.total_videos?.toLocaleString() || "0", label: "Video", color: "from-purple-500 to-purple-600" },
-    { icon: <Eye size={24} />, value: "3.4M+", label: "Total Views", color: "from-green-500 to-green-600" },
-    { icon: <Download size={24} />, value: "52K+", label: "Downloads", color: "from-orange-500 to-orange-600" },
-    { icon: <Images size={24} />, value: "42K+", label: "High-Res", color: "from-pink-500 to-pink-600" },
-  ];
+// Map province names to database names
+const PROVINCE_NAME_MAP = {
+  "Aceh": "ACEH", "Sumatera Utara": "SUMATERA UTARA", "Sumatera Barat": "SUMATERA BARAT",
+  "Riau": "RIAU", "Jambi": "JAMBI", "Sumatera Selatan": "SUMATERA SELATAN",
+  "Bengkulu": "BENGKULU", "Lampung": "LAMPUNG", "Kepulauan Bangka Belitung": "KEPULAUAN BANGKA BELITUNG",
+  "Kepulauan Riau": "KEPULAUAN RIAU", "DKI Jakarta": "DKI JAKARTA", "Jawa Barat": "JAWA BARAT",
+  "Jawa Tengah": "JAWA TENGAH", "DI Yogyakarta": "DI YOGYAKARTA", "Jawa Timur": "JAWA TIMUR",
+  "Banten": "BANTEN", "Bali": "BALI", "Nusa Tenggara Barat": "NUSA TENGGARA BARAT",
+  "Nusa Tenggara Timur": "NUSA TENGGARA TIMUR", "Kalimantan Barat": "KALIMANTAN BARAT",
+  "Kalimantan Tengah": "KALIMANTAN TENGAH", "Kalimantan Selatan": "KALIMANTAN SELATAN",
+  "Kalimantan Timur": "KALIMANTAN TIMUR", "Kalimantan Utara": "KALIMANTAN UTARA",
+  "Sulawesi Utara": "SULAWESI UTARA", "Sulawesi Tengah": "SULAWESI TENGAH",
+  "Sulawesi Selatan": "SULAWESI SELATAN", "Sulawesi Tenggara": "SULAWESI TENGGARA",
+  "Gorontalo": "GORONTALO", "Sulawesi Barat": "SULAWESI BARAT",
+  "Maluku": "MALUKU", "Maluku Utara": "MALUKU UTARA",
+  "Papua Barat": "PAPUA BARAT", "Papua": "PAPUA",
+};
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-      {items.map((item, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
-          className={`bg-gradient-to-br ${item.color} rounded-xl p-4 text-white shadow-lg`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2 rounded-lg">{item.icon}</div>
-            <div>
-              <p className="text-2xl font-bold">{item.value}</p>
-              <p className="text-white/80 text-sm">{item.label}</p>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
+// Format number
+const formatNumber = (num) => {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M+";
+  if (num >= 1000) return (num / 1000).toFixed(0) + "K+";
+  return num?.toLocaleString() || "0";
 };
 
 // ============================================
 // HEADER
 // ============================================
-const Header = ({ onOpenSearch, onOpenVisualSearch }) => {
+const Header = ({ onOpenSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
-      <div className="bg-white border-b border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg/120px-Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg.png"
-                alt="Kemenpar"
-                className="h-12 w-12 object-contain"
-                onError={(e) => { e.target.src = "https://woni.sklmb.co/kemenpar.png"; }}
-              />
-              <div>
-                <h1 className="text-navy font-bold text-lg leading-tight">Kementerian Pariwisata</h1>
-                <p className="text-navy/70 text-sm">Galeri Wonderful Indonesia</p>
-              </div>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-2">
-              <button onClick={onOpenVisualSearch} className="flex items-center gap-2 px-4 py-2 bg-navy/5 hover:bg-navy/10 rounded-lg transition text-navy">
-                <Upload size={18} />
-                <span className="text-sm">Cari dengan Gambar</span>
-              </button>
-              <button onClick={onOpenSearch} className="flex items-center gap-2 px-4 py-2 bg-gold hover:bg-gold-dark rounded-lg transition text-navy font-semibold shadow-md">
-                <Sparkles size={18} />
-                <span className="text-sm">Pencarian AI</span>
-              </button>
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg/120px-Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg.png"
+              alt="Kemenpar"
+              className="h-12 w-12 object-contain"
+              onError={(e) => { e.target.src = "https://woni.sklmb.co/kemenpar.png"; }}
+            />
+            <div className="hidden sm:block">
+              <h1 className="text-navy font-bold text-lg leading-tight">Kementerian Pariwisata</h1>
+              <p className="text-navy/60 text-xs">Galeri Wonderful Indonesia</p>
             </div>
+          </Link>
 
-            <button className="md:hidden text-navy p-2" onClick={() => setMenuOpen(!menuOpen)}>
-              <Menu size={24} />
-            </button>
-          </div>
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink to="/" label="Beranda" />
+            <NavLink to="/gallery" label="Galeri" />
+            <NavLink to="/videos" label="Video" />
+          </nav>
+
+          <button onClick={onOpenSearch}
+            className="hidden md:flex items-center gap-2 bg-gold hover:bg-gold-dark text-navy px-5 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl transition">
+            <Sparkles size={18} />
+            Pencarian AI
+          </button>
+
+          <button className="md:hidden text-navy p-2" onClick={() => setMenuOpen(!menuOpen)}>
+            <Menu size={24} />
+          </button>
         </div>
       </div>
 
-      <nav className="bg-navy">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-11">
-            <div className="hidden md:flex items-center">
-              <NavLink to="/" icon={<HomeIcon size={16} />} label="Beranda" />
-              <NavLink to="/gallery" icon={<ImageIcon size={16} />} label="Galeri Foto" />
-              <NavLink to="/videos" icon={<Play size={16} />} label="Video" />
-              <NavLink to="/stats" icon={<BarChart3 size={16} />} label="Statistik" />
-            </div>
-            <p className="text-gold text-sm font-medium">Download Gratis untuk Semua</p>
-          </div>
-        </div>
-      </nav>
-
       {menuOpen && (
-        <div className="md:hidden bg-navy px-4 py-3 space-y-2">
-          <Link to="/" className="block py-2 text-white hover:text-gold">Beranda</Link>
-          <Link to="/gallery" className="block py-2 text-white hover:text-gold">Galeri Foto</Link>
-          <Link to="/videos" className="block py-2 text-white hover:text-gold">Video</Link>
+        <div className="md:hidden bg-white border-t px-4 py-3 space-y-2">
+          <Link to="/" className="block py-2 text-navy hover:text-gold">Beranda</Link>
+          <Link to="/gallery" className="block py-2 text-navy hover:text-gold">Galeri</Link>
+          <Link to="/videos" className="block py-2 text-navy hover:text-gold">Video</Link>
           <button onClick={onOpenSearch} className="w-full mt-2 bg-gold text-navy py-2 rounded-lg font-semibold">
             Pencarian AI
           </button>
@@ -281,15 +141,44 @@ const Header = ({ onOpenSearch, onOpenVisualSearch }) => {
   );
 };
 
-const NavLink = ({ to, icon, label }) => (
-  <Link to={to} className="flex items-center gap-2 px-4 py-3 text-white hover:text-gold transition text-sm">
-    {icon}
-    <span>{label}</span>
-  </Link>
+const NavLink = ({ to, label }) => (
+  <Link to={to} className="px-4 py-2 text-navy hover:text-gold transition text-sm font-medium">{label}</Link>
 );
 
 // ============================================
-// AI SEARCH MODAL
+// STATISTICS SECTION
+// ============================================
+const StatsSection = ({ stats }) => {
+  if (!stats) return null;
+  
+  const items = [
+    { icon: <Images size={28} />, value: formatNumber(stats.total_images), label: "Foto HD", gradient: "from-blue-500 to-blue-600" },
+    { icon: <Video size={28} />, value: formatNumber(stats.total_videos), label: "Video", gradient: "from-purple-500 to-purple-600" },
+    { icon: <Eye size={28} />, value: formatNumber(stats.total_views), label: "Views", gradient: "from-green-500 to-green-600" },
+    { icon: <Download size={28} />, value: formatNumber(stats.total_downloads), label: "Downloads", gradient: "from-orange-500 to-orange-600" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+      {items.map((item, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className={`bg-gradient-to-br ${item.gradient} rounded-xl p-5 text-white shadow-lg text-center`}
+        >
+          <div className="flex justify-center mb-2">{item.icon}</div>
+          <p className="text-3xl font-bold">{item.value}</p>
+          <p className="text-white/80 text-sm">{item.label}</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// ============================================
+// AI SEARCH MODAL (DOMINANT)
 // ============================================
 const AISearchModal = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState("");
@@ -319,66 +208,98 @@ const AISearchModal = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-start justify-center pt-20 px-4">
-        <div className="absolute inset-0 bg-navy/80 backdrop-blur-md" onClick={onClose} />
-        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }}
+        className="fixed inset-0 z-[100] flex items-start justify-center pt-16 px-4">
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+        <motion.div initial={{ opacity: 0, y: -30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
           
-          <div className="bg-gradient-to-r from-navy to-navy-light p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-gold p-2 rounded-xl"><Sparkles size={24} className="text-navy" /></div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">Pencarian Cerdas AI</h2>
-                  <p className="text-white/70 text-sm">Temukan destinasi impian Anda</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="text-white/80 hover:text-white p-2"><X size={24} /></button>
+          <div className="bg-gradient-to-r from-navy via-navy-light to-navy p-8 relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-gold rounded-full" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gold rounded-full" />
             </div>
             <div className="relative">
-              <input type="text" placeholder='Contoh: "pantai indah di Bali" atau "wisata budaya Yogyakarta"'
-                value={query} onChange={(e) => setQuery(e.target.value)} onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="w-full px-5 py-4 pr-14 rounded-xl text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold"
-              />
-              <button onClick={handleSearch} disabled={loading}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-3 rounded-lg hover:bg-gold-dark transition disabled:opacity-50">
-                {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
-              </button>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gold p-3 rounded-xl shadow-lg">
+                    <Sparkles size={28} className="text-navy" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Pencarian Cerdas AI</h2>
+                    <p className="text-white/70 text-sm">Temukan destinasi impian dengan bahasa natural</p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg">
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="relative">
+                <input type="text"
+                  placeholder='Coba: "pantai sunset di Bali" atau "candi bersejarah di Jawa"'
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  className="w-full px-6 py-4 pr-16 rounded-xl text-navy text-lg placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg"
+                  autoFocus
+                />
+                <button onClick={handleSearch} disabled={loading}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-3 rounded-lg hover:bg-gold-dark transition disabled:opacity-50 shadow-md">
+                  {loading ? <Loader2 size={24} className="animate-spin" /> : <Search size={24} />}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {["Pantai Bali", "Candi Jawa", "Raja Ampat", "Danau Toba", "Komodo"].map((tag) => (
+                  <button key={tag} onClick={() => { setQuery(tag); }}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full text-sm transition">
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="p-6 overflow-y-auto max-h-[55vh] bg-gray-50">
+          <div className="p-6 overflow-y-auto max-h-[50vh] bg-gray-50">
             {results ? (
               <div>
                 {results.interpreted_query && (
-                  <p className="text-sm text-navy/70 mb-4 p-3 bg-navy/5 rounded-lg">
-                    <span className="font-semibold">AI memahami:</span> {results.interpreted_query.province || ""} {results.interpreted_query.category || ""} {results.interpreted_query.keywords || ""}
-                  </p>
+                  <div className="mb-4 p-3 bg-navy/5 rounded-lg border border-navy/10">
+                    <p className="text-sm text-navy/70">
+                      <span className="font-semibold">AI memahami:</span>{" "}
+                      {[results.interpreted_query.province, results.interpreted_query.category, results.interpreted_query.keywords].filter(Boolean).join(" • ")}
+                    </p>
+                  </div>
                 )}
                 {results.articles?.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {results.articles.map((article) => (
                       <div key={article.id} onClick={() => goToDetail(article.id)}
-                        className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-                        <div className="aspect-video overflow-hidden">
+                        className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
+                        <div className="aspect-video overflow-hidden relative">
                           <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                            <Eye size={10} /> {article.total_view?.toLocaleString()}
+                          </div>
                         </div>
                         <div className="p-3">
-                          <h4 className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</h4>
-                          <p className="text-xs text-gray-500 mt-1">{article.province_name}</p>
+                          <h4 className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold transition">{article.title}</h4>
+                          <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                            <MapPin size={10} className="text-gold" /> {article.province_name}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-gray-500 py-8">Tidak ditemukan hasil.</p>
+                  <p className="text-center text-gray-500 py-8">Tidak ditemukan hasil. Coba kata kunci lain.</p>
                 )}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Sparkles size={48} className="mx-auto mb-4 text-gold/50" />
-                <p className="text-navy font-medium">Ketik pencarian dengan bahasa natural</p>
-                <p className="text-sm text-gray-500 mt-2">Contoh: "tempat romantis untuk honeymoon"</p>
+              <div className="text-center py-12">
+                <div className="bg-gold/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles size={48} className="text-gold" />
+                </div>
+                <p className="text-navy font-medium text-lg">Ketik pencarian dengan bahasa natural</p>
+                <p className="text-gray-500 mt-2">Contoh: "tempat romantis untuk honeymoon" atau "wisata alam di Sulawesi"</p>
               </div>
             )}
           </div>
@@ -389,102 +310,109 @@ const AISearchModal = ({ isOpen, onClose }) => {
 };
 
 // ============================================
-// VISUAL SEARCH MODAL (AI Image Search)
+// INDONESIA MAP (react-simple-maps)
 // ============================================
-const VisualSearchModal = ({ isOpen, onClose }) => {
-  const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const navigate = useNavigate();
+const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
+  const [geoData, setGeoData] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setPreview(reader.result);
-      reader.readAsDataURL(file);
-    }
+  useEffect(() => {
+    fetch(INDONESIA_TOPO)
+      .then(res => res.json())
+      .then(data => setGeoData(data))
+      .catch(err => console.error("Failed to load map:", err));
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 'image/*': [] },
-    maxFiles: 1
-  });
-
-  const handleSearch = async () => {
-    if (!preview) return;
-    setLoading(true);
-    // Simulate AI visual search - in real implementation, send to backend
-    setTimeout(() => {
-      setLoading(false);
-      onClose();
-      navigate('/gallery');
-    }, 2000);
+  const getProvinceData = (geoName) => {
+    const dbName = PROVINCE_NAME_MAP[geoName];
+    return provinces.find(p => p.name === dbName);
   };
 
-  if (!isOpen) return null;
+  if (!geoData) {
+    return (
+      <div className="h-[400px] flex items-center justify-center">
+        <Loader2 size={40} className="animate-spin text-gold" />
+      </div>
+    );
+  }
 
   return (
-    <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-        <div className="absolute inset-0 bg-navy/80 backdrop-blur-md" onClick={onClose} />
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-          
-          <div className="bg-gradient-to-r from-navy to-navy-light p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-gold p-2 rounded-xl"><Upload size={24} className="text-navy" /></div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">Pencarian Visual AI</h2>
-                  <p className="text-white/70 text-sm">Upload gambar, temukan yang serupa</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="text-white/80 hover:text-white p-2"><X size={24} /></button>
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition
-              ${isDragActive ? 'border-gold bg-gold/10' : 'border-gray-300 hover:border-gold'}`}>
-              <input {...getInputProps()} />
-              {preview ? (
-                <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
-              ) : (
-                <>
-                  <Upload size={48} className="mx-auto mb-4 text-gray-400" />
-                  <p className="text-navy font-medium">Drag & drop gambar di sini</p>
-                  <p className="text-sm text-gray-500 mt-1">atau klik untuk memilih file</p>
-                </>
-              )}
-            </div>
+    <div className="relative">
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{ scale: 1200, center: [118, -2] }}
+        style={{ width: "100%", height: "auto" }}
+      >
+        <ZoomableGroup zoom={1} minZoom={1} maxZoom={4}>
+          <Geographies geography={geoData}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const provData = getProvinceData(geo.properties.Propinsi);
+                const isSelected = selectedProvince?.name === PROVINCE_NAME_MAP[geo.properties.Propinsi];
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    onClick={() => provData && onProvinceClick(provData)}
+                    style={{
+                      default: {
+                        fill: isSelected ? "#FFCC00" : "#D4AF37",
+                        stroke: "#002F6C",
+                        strokeWidth: 0.5,
+                        outline: "none",
+                      },
+                      hover: {
+                        fill: "#FFCC00",
+                        stroke: "#002F6C",
+                        strokeWidth: 1,
+                        outline: "none",
+                        cursor: "pointer",
+                      },
+                      pressed: {
+                        fill: "#C9A227",
+                        stroke: "#002F6C",
+                        strokeWidth: 1,
+                        outline: "none",
+                      },
+                    }}
+                  />
+                );
+              })
+            }
+          </Geographies>
+          {/* Markers with article count */}
+          {provinces.map((province) => {
+            const coords = Object.entries(PROVINCE_NAME_MAP).find(([k, v]) => v === province.name);
+            if (!coords) return null;
+            const position = PROVINCE_COORDS[coords[0]];
+            if (!position) return null;
             
-            {preview && (
-              <button onClick={handleSearch} disabled={loading}
-                className="w-full mt-4 bg-gold hover:bg-gold-dark text-navy py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
-                {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
-                {loading ? "Mencari..." : "Cari Gambar Serupa"}
-              </button>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+            return (
+              <Marker key={province.id} coordinates={position}>
+                <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
+                  <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
+                  <text textAnchor="middle" y={3} style={{ fontSize: 7, fill: "#FFCC00", fontWeight: "bold" }}>
+                    {province.article_count}
+                  </text>
+                </g>
+              </Marker>
+            );
+          })}
+        </ZoomableGroup>
+      </ComposableMap>
+    </div>
   );
 };
 
 // ============================================
 // PROVINCE PANEL
 // ============================================
-const ProvincePanel = ({ province, recommendation, loading, onClose, onViewAll }) => {
+const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   const navigate = useNavigate();
-  
   if (!province) return null;
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-      className="absolute right-4 top-4 bottom-4 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gold/20">
+      className="absolute right-4 top-4 bottom-4 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
       <div className="bg-gradient-to-br from-navy to-navy-light p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -495,7 +423,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose, onViewAll }
         </div>
       </div>
 
-      <div className="p-4 overflow-y-auto max-h-[calc(100%-130px)]">
+      <div className="p-4 overflow-y-auto max-h-[calc(100%-140px)]">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 size={32} className="animate-spin text-gold" />
@@ -503,17 +431,16 @@ const ProvincePanel = ({ province, recommendation, loading, onClose, onViewAll }
         ) : (
           <>
             {recommendation?.recommendation && (
-              <div className="mb-4 p-3 bg-gold/10 rounded-lg border border-gold/20">
+              <div className="mb-4 p-3 bg-gold/10 rounded-lg">
                 <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
               </div>
             )}
             {recommendation?.articles?.length > 0 && (
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-navy/60 uppercase">Destinasi Populer</h4>
                 {recommendation.articles.slice(0, 4).map((article) => (
                   <Link key={article.id} to={`/detail/${article.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition group">
-                    <img src={article.thumbnail} alt={article.title} className="w-16 h-16 rounded-lg object-cover" />
+                    <img src={article.thumbnail} alt="" className="w-14 h-14 rounded-lg object-cover" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</p>
                       <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
@@ -529,7 +456,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose, onViewAll }
       </div>
       
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
-        <button onClick={onViewAll}
+        <button onClick={() => navigate(`/gallery?province=${province.id}`)}
           className="w-full bg-navy text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-navy-light transition">
           Lihat Semua <ArrowRight size={16} />
         </button>
@@ -539,7 +466,60 @@ const ProvincePanel = ({ province, recommendation, loading, onClose, onViewAll }
 };
 
 // ============================================
-// ARTICLE CARD (untuk homepage - klik ke detail)
+// FILTER BAR
+// ============================================
+const FilterBar = ({ provinces, filter, setFilter }) => {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {/* Province Filter */}
+      <select
+        value={filter.provinceId || ""}
+        onChange={(e) => setFilter(f => ({ ...f, provinceId: e.target.value || null }))}
+        className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold"
+      >
+        <option value="">Semua Provinsi</option>
+        {provinces.map((p) => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+
+      {/* Sort Filter */}
+      <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <button onClick={() => setFilter(f => ({ ...f, sortBy: "recent" }))}
+          className={`px-4 py-2 text-sm flex items-center gap-1 transition ${filter.sortBy === "recent" ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          <Clock size={14} /> Terbaru
+        </button>
+        <button onClick={() => setFilter(f => ({ ...f, sortBy: "popular" }))}
+          className={`px-4 py-2 text-sm flex items-center gap-1 transition ${filter.sortBy === "popular" ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          <TrendingUp size={14} /> Populer
+        </button>
+        <button onClick={() => setFilter(f => ({ ...f, sortBy: "downloads" }))}
+          className={`px-4 py-2 text-sm flex items-center gap-1 transition ${filter.sortBy === "downloads" ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          <Download size={14} /> Downloads
+        </button>
+      </div>
+
+      {/* Media Type Filter */}
+      <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <button onClick={() => setFilter(f => ({ ...f, isVideo: null }))}
+          className={`px-4 py-2 text-sm transition ${filter.isVideo === null ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          Semua
+        </button>
+        <button onClick={() => setFilter(f => ({ ...f, isVideo: false }))}
+          className={`px-4 py-2 text-sm flex items-center gap-1 transition ${filter.isVideo === false ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          <Camera size={14} /> Foto
+        </button>
+        <button onClick={() => setFilter(f => ({ ...f, isVideo: true }))}
+          className={`px-4 py-2 text-sm flex items-center gap-1 transition ${filter.isVideo === true ? "bg-navy text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+          <Video size={14} /> Video
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// ARTICLE CARD
 // ============================================
 const ArticleCard = ({ article }) => {
   return (
@@ -553,8 +533,15 @@ const ArticleCard = ({ article }) => {
             <div className="bg-white/90 p-3 rounded-full"><Play size={24} className="text-navy" /></div>
           </div>
         )}
-        <div className="absolute top-2 right-2 bg-navy/80 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-          <Eye size={12} /> {article.total_view?.toLocaleString()}
+        <div className="absolute top-2 left-2 flex gap-2">
+          <span className="bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+            <Eye size={10} /> {article.total_view?.toLocaleString()}
+          </span>
+          {article.total_download > 0 && (
+            <span className="bg-gold/90 text-navy text-xs px-2 py-1 rounded flex items-center gap-1 font-medium">
+              <Download size={10} /> {article.total_download?.toLocaleString()}
+            </span>
+          )}
         </div>
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
           <div className="bg-white/90 p-3 rounded-full opacity-0 group-hover:opacity-100 transition transform scale-75 group-hover:scale-100">
@@ -574,13 +561,12 @@ const ArticleCard = ({ article }) => {
 };
 
 // ============================================
-// LIGHTBOX (untuk di halaman detail)
+// LIGHTBOX
 // ============================================
 const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
   const [downloading, setDownloading] = useState(false);
   
   if (!images || images.length === 0 || currentIndex < 0) return null;
-  
   const currentImage = images[currentIndex];
   
   const handleDownload = async () => {
@@ -608,31 +594,29 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
       className="fixed inset-0 z-[200] bg-black/95 flex flex-col" onClick={onClose}>
       
       <div className="flex items-center justify-between p-4" onClick={(e) => e.stopPropagation()}>
-        <span className="text-white/60 text-sm">{currentIndex + 1} / {images.length}</span>
-        <div className="flex items-center gap-2">
+        <span className="text-white/60 text-sm font-medium">{currentIndex + 1} / {images.length}</span>
+        <div className="flex items-center gap-3">
           <button onClick={handleDownload} disabled={downloading}
-            className="bg-gold hover:bg-gold-dark text-navy px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition">
+            className="bg-gold hover:bg-gold-dark text-navy px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition shadow-lg">
             {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
             Download HD
           </button>
-          <button onClick={onClose} className="text-white/80 hover:text-white p-2"><X size={24} /></button>
+          <button onClick={onClose} className="text-white/70 hover:text-white p-2"><X size={24} /></button>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center relative px-16" onClick={(e) => e.stopPropagation()}>
         {currentIndex > 0 && (
           <button onClick={() => onNavigate(currentIndex - 1)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition">
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
             <ChevronLeft size={32} />
           </button>
         )}
-
         <img src={currentImage.image_url || currentImage.thumbnail} alt=""
           className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl" />
-
         {currentIndex < images.length - 1 && (
           <button onClick={() => onNavigate(currentIndex + 1)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition">
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
             <ChevronRight size={32} />
           </button>
         )}
@@ -640,16 +624,16 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
 
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-center gap-2 overflow-x-auto max-w-4xl mx-auto scrollbar-hide">
-          {images.slice(0, 12).map((img, idx) => (
+          {images.slice(0, 10).map((img, idx) => (
             <button key={img.id || idx} onClick={() => onNavigate(idx)}
               className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all
                 ${idx === currentIndex ? 'ring-2 ring-gold scale-110' : 'opacity-50 hover:opacity-80'}`}>
               <img src={img.thumbnail} alt="" className="w-full h-full object-cover" />
             </button>
           ))}
-          {images.length > 12 && (
-            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center text-white text-sm">
-              +{images.length - 12}
+          {images.length > 10 && (
+            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center text-white text-sm font-medium">
+              +{images.length - 10}
             </div>
           )}
         </div>
@@ -670,10 +654,8 @@ const HomePage = () => {
   const [recommendation, setRecommendation] = useState(null);
   const [recLoading, setRecLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [visualSearchOpen, setVisualSearchOpen] = useState(false);
-  const [filter, setFilter] = useState({ sortBy: "recent", isVideo: null });
+  const [filter, setFilter] = useState({ sortBy: "recent", isVideo: null, provinceId: null });
   const [loadingArticles, setLoadingArticles] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => { loadInitialData(); }, []);
   useEffect(() => { loadArticles(); }, [filter]);
@@ -698,6 +680,7 @@ const HomePage = () => {
       params.append("sort_by", filter.sortBy);
       params.append("limit", "12");
       if (filter.isVideo !== null) params.append("is_video", filter.isVideo);
+      if (filter.provinceId) params.append("province_id", filter.provinceId);
       const res = await axios.get(`${API}/articles?${params.toString()}`);
       setArticles(res.data);
     } catch (e) { console.error(e); }
@@ -716,102 +699,76 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onOpenSearch={() => setSearchOpen(true)} onOpenVisualSearch={() => setVisualSearchOpen(true)} />
+      <Header onOpenSearch={() => setSearchOpen(true)} />
       <AISearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-      <VisualSearchModal isOpen={visualSearchOpen} onClose={() => setVisualSearchOpen(false)} />
 
-      {/* Hero + Stats */}
-      <section className="pt-32 pb-8 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">Galeri Wonderful Indonesia</h2>
-            <p className="text-gray-600">Download gratis foto & video pariwisata Indonesia berkualitas tinggi</p>
-          </div>
-          <StatsBanner stats={stats} />
+      {/* Hero Section */}
+      <section className="pt-24 pb-12 bg-gradient-to-b from-navy via-navy-light to-navy">
+        <div className="container mx-auto px-4 text-center">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Galeri <span className="text-gold">Wonderful Indonesia</span>
+          </motion.h1>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
+            Download gratis foto & video pariwisata Indonesia berkualitas tinggi
+          </motion.p>
+
+          {/* AI Search Bar - DOMINANT */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="max-w-2xl mx-auto mb-10">
+            <div onClick={() => setSearchOpen(true)}
+              className="bg-white rounded-2xl p-2 shadow-2xl cursor-pointer hover:shadow-3xl transition group">
+              <div className="flex items-center gap-4 p-3">
+                <div className="bg-gold p-3 rounded-xl group-hover:scale-105 transition">
+                  <Sparkles size={24} className="text-navy" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-navy font-medium">Pencarian Cerdas AI</p>
+                  <p className="text-gray-400 text-sm">Coba: "pantai sunset bali" atau "wisata alam sulawesi"</p>
+                </div>
+                <div className="bg-navy text-white px-6 py-3 rounded-xl font-semibold group-hover:bg-navy-light transition">
+                  Cari
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <StatsSection stats={stats} />
+          </motion.div>
         </div>
       </section>
 
       {/* Map Section */}
-      <section className="py-8">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-bold text-navy">Jelajahi Peta Indonesia</h3>
-                <p className="text-gray-500 text-sm">Klik provinsi untuk melihat rekomendasi destinasi</p>
-              </div>
-              <button onClick={() => setSearchOpen(true)}
-                className="bg-gold hover:bg-gold-dark text-navy px-4 py-2 rounded-lg font-semibold flex items-center gap-2 shadow-md">
-                <Sparkles size={18} /> Pencarian AI
-              </button>
-            </div>
-            
-            <div className="relative">
-              <IndonesiaMapSVG provinces={provinces} onProvinceClick={handleProvinceClick} selectedProvince={selectedProvince} />
-              
-              <AnimatePresence>
-                {selectedProvince && (
-                  <ProvincePanel
-                    province={selectedProvince}
-                    recommendation={recommendation}
-                    loading={recLoading}
-                    onClose={() => setSelectedProvince(null)}
-                    onViewAll={() => { setSelectedProvince(null); navigate(`/gallery?province=${selectedProvince.id}`); }}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">Jelajahi Peta Indonesia</h2>
+            <p className="text-gray-500">Klik provinsi untuk melihat rekomendasi destinasi</p>
+          </div>
+          <div className="bg-gray-50 rounded-2xl p-4 md:p-8 relative shadow-inner">
+            <IndonesiaMap provinces={provinces} onProvinceClick={handleProvinceClick} selectedProvince={selectedProvince} />
+            <AnimatePresence>
+              {selectedProvince && (
+                <ProvincePanel province={selectedProvince} recommendation={recommendation} loading={recLoading}
+                  onClose={() => setSelectedProvince(null)} />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-4">
+      {/* Gallery Section */}
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            <span className="text-navy font-semibold whitespace-nowrap">Kategori:</span>
-            {categories.map((cat) => (
-              <button key={cat.id}
-                className="px-4 py-2 rounded-full bg-white hover:bg-gold/20 transition whitespace-nowrap text-sm border border-gray-200 hover:border-gold">
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-navy">Galeri Terbaru</h2>
-              <p className="text-gray-500 text-sm">Klik untuk melihat detail & download gambar</p>
+              <h2 className="text-2xl font-bold text-navy">Galeri Destinasi</h2>
+              <p className="text-gray-500 text-sm">Klik untuk melihat detail & download gambar HD</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex bg-white rounded-lg border overflow-hidden">
-                <button onClick={() => setFilter(f => ({ ...f, sortBy: "recent" }))}
-                  className={`px-4 py-2 text-sm flex items-center gap-1 ${filter.sortBy === "recent" ? "bg-navy text-white" : "text-gray-600"}`}>
-                  <Clock size={14} /> Terbaru
-                </button>
-                <button onClick={() => setFilter(f => ({ ...f, sortBy: "popular" }))}
-                  className={`px-4 py-2 text-sm flex items-center gap-1 ${filter.sortBy === "popular" ? "bg-navy text-white" : "text-gray-600"}`}>
-                  <TrendingUp size={14} /> Populer
-                </button>
-              </div>
-              <div className="flex bg-white rounded-lg border overflow-hidden">
-                <button onClick={() => setFilter(f => ({ ...f, isVideo: null }))}
-                  className={`px-4 py-2 text-sm ${filter.isVideo === null ? "bg-navy text-white" : "text-gray-600"}`}>Semua</button>
-                <button onClick={() => setFilter(f => ({ ...f, isVideo: false }))}
-                  className={`px-4 py-2 text-sm flex items-center gap-1 ${filter.isVideo === false ? "bg-navy text-white" : "text-gray-600"}`}>
-                  <Camera size={14} />
-                </button>
-                <button onClick={() => setFilter(f => ({ ...f, isVideo: true }))}
-                  className={`px-4 py-2 text-sm flex items-center gap-1 ${filter.isVideo === true ? "bg-navy text-white" : "text-gray-600"}`}>
-                  <Video size={14} />
-                </button>
-              </div>
-            </div>
+            <FilterBar provinces={provinces} filter={filter} setFilter={setFilter} />
           </div>
 
           {loadingArticles ? (
@@ -835,28 +792,26 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <img src="https://woni.sklmb.co/wonderful-indonesia.svg" alt="Wonderful Indonesia" className="h-12 mb-4" />
+              <img src="https://woni.sklmb.co/wonderful-indonesia.svg" alt="Wonderful Indonesia" className="h-10 mb-4" />
               <p className="text-gray-400 text-sm">Galeri Resmi Kementerian Pariwisata Republik Indonesia</p>
-              <p className="text-gold text-sm mt-2">Semua foto dan video gratis untuk diunduh</p>
             </div>
             <div>
               <h4 className="font-bold mb-4 text-gold">Tautan</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/" className="hover:text-gold">Beranda</Link></li>
-                <li><Link to="/gallery" className="hover:text-gold">Galeri</Link></li>
-                <li><a href="/privacy-policy" className="hover:text-gold">Kebijakan Privasi</a></li>
+                <li><Link to="/" className="hover:text-gold transition">Beranda</Link></li>
+                <li><Link to="/gallery" className="hover:text-gold transition">Galeri</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-4 text-gold">Ikuti Kami</h4>
               <div className="flex gap-4 text-gray-400 text-sm">
-                <a href="https://www.facebook.com/KemenPariwisata" className="hover:text-gold">Facebook</a>
-                <a href="http://instagram.com/kemenpar.ri" className="hover:text-gold">Instagram</a>
+                <a href="https://www.facebook.com/KemenPariwisata" className="hover:text-gold transition">Facebook</a>
+                <a href="http://instagram.com/kemenpar.ri" className="hover:text-gold transition">Instagram</a>
               </div>
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
-            © 2025 Galeri Kementerian Pariwisata Republik Indonesia
+            © 2025 Galeri Kementerian Pariwisata Republik Indonesia. Download gratis untuk semua.
           </div>
         </div>
       </footer>
@@ -865,7 +820,7 @@ const HomePage = () => {
 };
 
 // ============================================
-// DETAIL PAGE - dengan semua gambar artikel
+// DETAIL PAGE
 // ============================================
 const DetailPage = () => {
   const { id } = useParams();
@@ -874,9 +829,7 @@ const DetailPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  useEffect(() => {
-    loadArticle();
-  }, [id]);
+  useEffect(() => { loadArticle(); }, [id]);
 
   const loadArticle = async () => {
     setLoading(true);
@@ -887,84 +840,56 @@ const DetailPage = () => {
     setLoading(false);
   };
 
-  const openLightbox = (index) => {
-    setLightboxIndex(index);
-    setLightboxOpen(true);
-  };
-
-  // Combine thumbnail + all images untuk lightbox
   const allImages = article ? [
     { id: 'main', thumbnail: article.thumbnail, image_url: article.thumbnail },
     ...(article.images || [])
   ] : [];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 size={48} className="animate-spin text-gold" />
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 size={48} className="animate-spin text-gold" /></div>;
   }
 
   if (!article) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Artikel tidak ditemukan</p>
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Artikel tidak ditemukan</p></div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onOpenSearch={() => {}} onOpenVisualSearch={() => {}} />
+      <Header onOpenSearch={() => {}} />
       
       {lightboxOpen && (
-        <Lightbox
-          images={allImages}
-          currentIndex={lightboxIndex}
-          onClose={() => setLightboxOpen(false)}
-          onNavigate={setLightboxIndex}
-        />
+        <Lightbox images={allImages} currentIndex={lightboxIndex} onClose={() => setLightboxOpen(false)} onNavigate={setLightboxIndex} />
       )}
 
-      <div className="pt-32 pb-12">
+      <div className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <Link to="/" className="text-gold hover:text-gold-dark flex items-center gap-1 mb-6 font-medium">
-            <ChevronLeft size={20} /> Kembali ke Beranda
+          <Link to="/" className="inline-flex items-center gap-1 text-gold hover:text-gold-dark mb-6 font-medium">
+            <ChevronLeft size={20} /> Kembali
           </Link>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content */}
             <div className="lg:col-span-2">
-              {/* Main Image */}
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
-                <div className="relative cursor-pointer group" onClick={() => openLightbox(0)}>
-                  {article.is_video && article.video_url ? (
-                    <div className="aspect-video">
-                      <iframe src={article.video_url} className="w-full h-full" allowFullScreen title={article.title} />
-                    </div>
-                  ) : (
-                    <>
-                      <img src={article.thumbnail} alt={article.title} className="w-full max-h-[500px] object-cover" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
-                        <div className="bg-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition transform scale-75 group-hover:scale-100">
-                          <ZoomIn size={32} className="text-navy" />
-                        </div>
-                      </div>
-                    </>
-                  )}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="relative cursor-pointer group" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}>
+                  <img src={article.thumbnail} alt={article.title} className="w-full max-h-[500px] object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
+                    <div className="bg-white p-4 rounded-full opacity-0 group-hover:opacity-100 transition"><ZoomIn size={32} className="text-navy" /></div>
+                  </div>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 md:p-8">
                   <h1 className="text-2xl md:text-3xl font-bold text-navy mb-4">{article.title}</h1>
                   
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
-                    <span className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-4 text-sm mb-6">
+                    <span className="flex items-center gap-1 text-gray-500">
                       <MapPin size={16} className="text-gold" />
                       {article.province_name || "Indonesia"}{article.city_name && `, ${article.city_name}`}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Eye size={16} /> {article.total_view?.toLocaleString()} views
+                    <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                      <Eye size={14} /> {article.total_view?.toLocaleString()} views
+                    </span>
+                    <span className="flex items-center gap-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
+                      <Download size={14} /> {article.total_download?.toLocaleString() || 0} downloads
                     </span>
                     {article.category && (
                       <span className="bg-gold/20 text-navy px-3 py-1 rounded-full font-medium">{article.category}</span>
@@ -978,54 +903,35 @@ const DetailPage = () => {
               </div>
             </div>
 
-            {/* Sidebar - Gallery Images */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-32">
+              <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-24">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-navy flex items-center gap-2">
                     <Images size={20} className="text-gold" />
-                    Galeri ({allImages.length} Gambar)
+                    Galeri ({allImages.length})
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 max-h-[500px] overflow-y-auto scrollbar-hide">
+                <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto scrollbar-hide">
                   {allImages.map((img, idx) => (
-                    <div key={img.id || idx} onClick={() => openLightbox(idx)}
+                    <div key={img.id || idx} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true); }}
                       className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group">
                       <img src={img.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
-                        <div className="bg-gold text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
-                          <ZoomIn size={16} />
-                        </div>
+                        <ZoomIn size={20} className="text-white opacity-0 group-hover:opacity-100 transition" />
                       </div>
-                      {idx === 0 && (
-                        <span className="absolute top-2 left-2 bg-gold text-navy text-xs px-2 py-1 rounded font-medium">Utama</span>
-                      )}
+                      {idx === 0 && <span className="absolute top-1 left-1 bg-gold text-navy text-xs px-2 py-0.5 rounded font-medium">Utama</span>}
                     </div>
                   ))}
                 </div>
 
-                <button onClick={() => openLightbox(0)}
+                <button onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
                   className="w-full mt-4 bg-gold hover:bg-gold-dark text-navy py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-md">
-                  <Download size={20} /> Download Semua Gambar
+                  <Download size={20} /> Lihat & Download HD
                 </button>
               </div>
             </div>
           </div>
-
-          {/* Tags */}
-          {article.tags && (
-            <div className="mt-8 bg-white rounded-xl p-6 shadow">
-              <h3 className="text-sm font-medium text-gray-500 mb-3">Tags:</h3>
-              <div className="flex flex-wrap gap-2">
-                {article.tags.split(",").map((tag, i) => (
-                  <span key={i} className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm hover:bg-gold/20 cursor-pointer transition">
-                    {tag.trim()}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -1037,45 +943,72 @@ const DetailPage = () => {
 // ============================================
 const GalleryPage = () => {
   const [articles, setArticles] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState({ sortBy: "recent", isVideo: null, provinceId: null });
   const [page, setPage] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
 
-  useEffect(() => {
-    loadArticles();
-  }, [page]);
+  useEffect(() => { loadProvinces(); }, []);
+  useEffect(() => { setPage(0); loadArticles(true); }, [filter]);
 
-  const loadArticles = async () => {
+  const loadProvinces = async () => {
+    try {
+      const res = await axios.get(`${API}/provinces`);
+      setProvinces(res.data);
+    } catch (e) { console.error(e); }
+  };
+
+  const loadArticles = async (reset = false) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/articles?limit=24&offset=${page * 24}`);
-      setArticles(prev => page === 0 ? res.data : [...prev, ...res.data]);
+      const params = new URLSearchParams();
+      params.append("sort_by", filter.sortBy);
+      params.append("limit", "24");
+      params.append("offset", reset ? 0 : page * 24);
+      if (filter.isVideo !== null) params.append("is_video", filter.isVideo);
+      if (filter.provinceId) params.append("province_id", filter.provinceId);
+      const res = await axios.get(`${API}/articles?${params.toString()}`);
+      setArticles(prev => reset ? res.data : [...prev, ...res.data]);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
 
+  const loadMore = () => {
+    setPage(p => p + 1);
+    loadArticles(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onOpenSearch={() => {}} onOpenVisualSearch={() => {}} />
+      <Header onOpenSearch={() => setSearchOpen(true)} />
+      <AISearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       
-      <div className="pt-32 pb-12">
+      <div className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-navy mb-2">Galeri Foto</h1>
-          <p className="text-gray-500 mb-8">Klik gambar untuk melihat detail dan download</p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-navy">Galeri Foto & Video</h1>
+              <p className="text-gray-500">Download gratis untuk semua keperluan</p>
+            </div>
+            <FilterBar provinces={provinces} filter={filter} setFilter={setFilter} />
           </div>
-
-          {loading && <div className="flex justify-center py-8"><Loader2 size={40} className="animate-spin text-gold" /></div>}
           
-          {!loading && (
-            <div className="text-center mt-10">
-              <button onClick={() => setPage(p => p + 1)}
-                className="bg-navy text-white px-8 py-3 rounded-full hover:bg-navy-light transition font-medium">
-                Muat Lebih Banyak
-              </button>
+          {loading && articles.length === 0 ? (
+            <div className="flex justify-center py-12"><Loader2 size={40} className="animate-spin text-gold" /></div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
             </div>
           )}
+
+          <div className="text-center mt-10">
+            <button onClick={loadMore} disabled={loading}
+              className="bg-navy text-white px-8 py-3 rounded-full hover:bg-navy-light transition font-medium disabled:opacity-50">
+              {loading ? <Loader2 size={20} className="animate-spin inline mr-2" /> : null}
+              Muat Lebih Banyak
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1083,7 +1016,7 @@ const GalleryPage = () => {
 };
 
 // ============================================
-// APP ROUTER
+// APP
 // ============================================
 function App() {
   return (
@@ -1093,7 +1026,6 @@ function App() {
         <Route path="/detail/:id" element={<DetailPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/videos" element={<GalleryPage />} />
-        <Route path="/stats" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   );
