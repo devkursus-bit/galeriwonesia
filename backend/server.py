@@ -48,6 +48,7 @@ class Article(BaseModel):
     thumbnail: str
     is_video: bool
     total_view: int
+    total_download: Optional[int] = 0
     province_name: Optional[str] = None
     city_name: Optional[str] = None
     tags: Optional[str] = None
