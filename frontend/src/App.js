@@ -766,7 +766,7 @@ const HomePage = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-2xl font-bold text-navy">Galeri Destinasi</h2>
-              <p className="text-gray-500 text-sm">Klik untuk melihat detail & download gambar HD</p>
+              <p className="text-gray-600 text-sm">Klik untuk melihat detail & download gambar HD</p>
             </div>
             <FilterBar provinces={provinces} filter={filter} setFilter={setFilter} />
           </div>
@@ -793,11 +793,11 @@ const HomePage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <img src="https://woni.sklmb.co/wonderful-indonesia.svg" alt="Wonderful Indonesia" className="h-10 mb-4" />
-              <p className="text-gray-400 text-sm">Galeri Resmi Kementerian Pariwisata Republik Indonesia</p>
+              <p className="text-gray-300 text-sm">Galeri Resmi Kementerian Pariwisata Republik Indonesia</p>
             </div>
             <div>
               <h4 className="font-bold mb-4 text-gold">Tautan</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
+              <ul className="space-y-2 text-gray-300 text-sm">
                 <li><Link to="/" className="hover:text-gold transition">Beranda</Link></li>
                 <li><Link to="/gallery" className="hover:text-gold transition">Galeri</Link></li>
               </ul>
