@@ -213,48 +213,42 @@ const AISearchModal = ({ isOpen, onClose }) => {
           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
           
           {/* Header - Fixed */}
-          <div className="bg-gradient-to-r from-navy via-navy-light to-navy p-6 relative overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-gold rounded-full" />
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gold rounded-full" />
+          <div className="bg-navy p-6 flex-shrink-0">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-gold p-2.5 rounded-xl">
+                  <Sparkles size={24} className="text-navy" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Pencarian Cerdas AI</h2>
+                  <p className="text-white/70 text-sm">Temukan destinasi impian dengan bahasa natural</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
+                <X size={24} />
+              </button>
             </div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gold p-2.5 rounded-xl shadow-lg">
-                    <Sparkles size={24} className="text-navy" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">Pencarian Cerdas AI</h2>
-                    <p className="text-gray-300 text-sm">Temukan destinasi impian dengan bahasa natural</p>
-                  </div>
-                </div>
-                <button onClick={onClose} className="text-gray-300 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
-                  <X size={24} />
+              <input type="text"
+                placeholder='Coba: "pantai sunset di Bali" atau "candi bersejarah di Jawa"'
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                className="w-full px-5 py-3.5 pr-14 rounded-xl text-navy text-base placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg bg-white"
+                autoFocus
+              />
+              <button onClick={handleSearch} disabled={loading}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-2.5 rounded-lg hover:bg-gold-dark transition disabled:opacity-50 shadow-md">
+                {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {["Pantai Bali", "Candi Jawa", "Raja Ampat", "Danau Toba", "Komodo"].map((tag) => (
+                <button key={tag} onClick={() => { setQuery(tag); }}
+                  className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full text-sm transition font-medium">
+                  {tag}
                 </button>
-              </div>
-              <div className="relative">
-                <input type="text"
-                  placeholder='Coba: "pantai sunset di Bali" atau "candi bersejarah di Jawa"'
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="w-full px-5 py-3.5 pr-14 rounded-xl text-navy text-base placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg bg-white"
-                  autoFocus
-                />
-                <button onClick={handleSearch} disabled={loading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-2.5 rounded-lg hover:bg-gold-dark transition disabled:opacity-50 shadow-md">
-                  {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {["Pantai Bali", "Candi Jawa", "Raja Ampat", "Danau Toba", "Komodo"].map((tag) => (
-                  <button key={tag} onClick={() => { setQuery(tag); }}
-                    className="bg-gold/30 hover:bg-gold/50 text-white px-3 py-1 rounded-full text-sm transition font-medium">
-                    {tag}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
 
