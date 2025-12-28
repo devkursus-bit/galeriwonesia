@@ -331,11 +331,13 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative w-full overflow-hidden">
       <ComposableMap
         projection="geoMercator"
-        projectionConfig={{ scale: 1200, center: [118, -2] }}
-        style={{ width: "100%", height: "auto" }}
+        projectionConfig={{ scale: 900, center: [118, -2] }}
+        style={{ width: "100%", height: "auto", maxHeight: "500px" }}
+        width={800}
+        height={400}
       >
         {/* Peta dikunci - tanpa ZoomableGroup untuk disable zoom/pan */}
         <Geographies geography={geoData}>
@@ -384,8 +386,8 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
           return (
             <Marker key={province.id} coordinates={position}>
               <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
-                <circle r={10} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
-                <text textAnchor="middle" y={4} style={{ fontSize: 8, fill: "#FFCC00", fontWeight: "bold", pointerEvents: "none" }}>
+                <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
+                <text textAnchor="middle" y={3} style={{ fontSize: 6, fill: "#FFCC00", fontWeight: "bold", pointerEvents: "none" }}>
                   {province.article_count}
                 </text>
               </g>
@@ -738,13 +740,13 @@ const HomePage = () => {
       </section>
 
       {/* Map Section */}
-      <section className="py-12 bg-white">
+      <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">Jelajahi Peta Indonesia</h2>
-            <p className="text-gray-500">Klik provinsi untuk melihat rekomendasi destinasi</p>
+            <p className="text-gray-600">Klik provinsi untuk melihat rekomendasi destinasi</p>
           </div>
-          <div className="bg-gray-50 rounded-2xl p-4 md:p-8 relative shadow-inner">
+          <div className="bg-gray-100 rounded-2xl p-2 md:p-4 relative shadow-inner overflow-hidden">
             <IndonesiaMap provinces={provinces} onProvinceClick={handleProvinceClick} selectedProvince={selectedProvince} />
             <AnimatePresence>
               {selectedProvince && (
@@ -761,7 +763,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-navy">Galeri Destinasi</h2>
+              <h2 className="text-2xl font-bold text-navy">Galeri</h2>
               <p className="text-gray-600 text-sm">Klik untuk melihat detail & download gambar HD</p>
             </div>
             <FilterBar provinces={provinces} filter={filter} setFilter={setFilter} />
