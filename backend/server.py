@@ -254,9 +254,10 @@ async def get_articles_paginated(
         params.extend([search_param, search_param])
     
     # Get total count
-    count_query = f'SELECT COUNT(*) FROM "Article" a {where_clause}'
+    count_query = f'SELECT COUNT(*) as total FROM "Article" a {where_clause}'
     cur.execute(count_query, params)
-    total = cur.fetchone()[0]
+    count_result = cur.fetchone()
+    total = count_result['total'] if count_result else 0
     
     # Get articles
     query = f"""
