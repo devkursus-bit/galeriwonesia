@@ -391,45 +391,68 @@ async def get_popular_tags():
 @api_router.get("/stats")
 async def get_stats():
     """Get statistics"""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    
-    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true")
-    total_articles = cur.fetchone()['total']
-    
-    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = false")
-    total_photos = cur.fetchone()['total']
-    
-    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = true")
-    total_videos = cur.fetchone()['total']
-    
-    cur.execute("SELECT COUNT(*) as total FROM \"Province\"")
-    total_provinces = cur.fetchone()['total']
-    
-    # Total high-res images
-    cur.execute("SELECT COUNT(*) as total FROM \"ArticleContentImage\"")
-    total_images = cur.fetchone()['total']
-    
-    # Total views
-    cur.execute("SELECT COALESCE(SUM(total_view), 0) as total FROM \"Article\" WHERE is_active = true")
-    total_views = cur.fetchone()['total']
-    
-    # Total downloads
-    cur.execute("SELECT COALESCE(SUM(total_download), 0) as total FROM \"ArticleContentImage\"")
-    total_downloads = cur.fetchone()['total']
-    
-    cur.close()
-    conn.close()
-    
-    return {
-        "total_articles": total_articles,
-        "total_photos": total_photos,
-        "total_videos": total_videos,
-        "total_provinces": total_provinces,
-        "total_images": total_images,
-        "total_views": total_views,
-        "total_downloads": total_downloads
-    }
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Total articles
+        cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true")
+        result = cur.fetchone()
+        total_articles = result['total'] if result and result['total'] is not None else 0
+        
+        # Total photos (non-video)
+        cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = false")
+        result = cur.fetchone()
+        total_photos = result['total'] if result and result['total'] is not None else 0
+        
+        # Total videos
+        cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = true")
+        result = cur.fetchone()
+        total_videos = result['total'] if result and result['total'] is not None else 0
+        
+        # Total provinces
+        cur.execute("SELECT COUNT(*) as total FROM \"Province\"")
+        result = cur.fetchone()
+        total_provinces = result['total'] if result and result['total'] is not None else 0
+        
+        # Total high-res images
+        cur.execute("SELECT COUNT(*) as total FROM \"ArticleContentImage\"")
+        result = cur.fetchone()
+        total_images = result['total'] if result and result['total'] is not None else 0
+        
+        # Total views
+        cur.execute("SELECT COALESCE(SUM(total_view), 0) as total FROM \"Article\" WHERE is_active = true")
+        result = cur.fetchone()
+        total_views = int(result['total']) if result and result['total'] is not None else 0
+        
+        # Total downloads
+        cur.execute("SELECT COALESCE(SUM(total_download), 0) as total FROM \"ArticleContentImage\"")
+        result = cur.fetchone()
+        total_downloads = int(result['total']) if result and result['total'] is not None else 0
+        
+        cur.close()
+        conn.close()
+        
+        return {
+            "total_articles": total_articles,
+            "total_photos": total_photos,
+            "total_videos": total_videos,
+            "total_provinces": total_provinces,
+            "total_images": total_images,
+            "total_views": total_views,
+            "total_downloads": total_downloads
+        }
+    except Exception as e:
+        # Return default values on error
+        return {
+            "total_articles": 0,
+            "total_photos": 0,
+            "total_videos": 0,
+            "total_provinces": 0,
+            "total_images": 0,
+            "total_views": 0,
+            "total_downloads": 0
+        }
 
 @api_router.post("/ai/search")
 async def ai_search(request: SearchRequest):
