@@ -272,7 +272,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                 )}
                 {results.articles?.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {results.articles.map((article) => (
+                    {Array.isArray(results.articles) && results.articles.map((article) => (
                       <div key={article.id} onClick={() => goToDetail(article.id)}
                         className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition border border-gray-100">
                         <div className="aspect-video overflow-hidden relative">
