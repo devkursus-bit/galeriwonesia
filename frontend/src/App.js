@@ -805,6 +805,17 @@ const HomePage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onOpenSearch={() => setSearchOpen(true)} />
       <AISearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      
+      {/* Lightbox for Image Preview */}
+      {lightboxOpen && (
+        <Lightbox
+          images={articles}
+          currentIndex={lightboxIndex}
+          onClose={closeLightbox}
+          onNext={nextImage}
+          onPrev={prevImage}
+        />
+      )}
 
       {/* Hero Section with Map */}
       <section className="pt-36 pb-12 bg-gradient-to-b from-white to-gray-50">
