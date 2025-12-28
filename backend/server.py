@@ -349,7 +349,6 @@ async def get_stats():
         "total_views": total_views,
         "total_downloads": total_downloads
     }
-    }
 
 @api_router.post("/ai/search")
 async def ai_search(request: SearchRequest):
