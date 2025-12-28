@@ -39,6 +39,8 @@ class Province(BaseModel):
     id: int
     name: str
     article_count: Optional[int] = 0
+    lat: Optional[float] = 0
+    lng: Optional[float] = 0
 
 class Article(BaseModel):
     id: int
