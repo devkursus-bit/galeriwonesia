@@ -822,7 +822,9 @@ const HomePage = () => {
           </div>
 
           {loadingArticles ? (
-            <div className="flex justify-center py-12"><Loader2 size={40} className="animate-spin text-gold" /></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
