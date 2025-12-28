@@ -2,52 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Marker Styles */
-.custom-marker {
-  background: transparent;
-  border: none;
+/* Custom Colors */
+:root {
+  --navy: #002F6C;
+  --navy-light: #003D8F;
+  --gold: #D4AF37;
+  --gold-dark: #C9A227;
 }
 
-.marker-pin {
-  width: 40px;
-  height: 40px;
-  border-radius: 50% 50% 50% 0;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  position: relative;
-  transform: rotate(-45deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.marker-pin:hover {
-  transform: rotate(-45deg) scale(1.1);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-}
-
-.marker-pin span {
-  transform: rotate(45deg);
-  color: white;
-  font-weight: bold;
-  font-size: 11px;
-}
-
-/* Leaflet Popup Customization */
-.leaflet-popup-content-wrapper {
-  border-radius: 12px;
-  padding: 0;
-  overflow: hidden;
-}
-
-.leaflet-popup-content {
-  margin: 12px 16px;
-}
-
-.leaflet-popup-tip {
-  background: white;
+/* Tailwind Custom Classes */
+@layer utilities {
+  .text-navy {
+    color: #002F6C;
+  }
+  .bg-navy {
+    background-color: #002F6C;
+  }
+  .bg-navy-light {
+    background-color: #003D8F;
+  }
+  .text-gold {
+    color: #D4AF37;
+  }
+  .bg-gold {
+    background-color: #D4AF37;
+  }
+  .bg-gold-dark {
+    background-color: #C9A227;
+  }
+  .border-gold {
+    border-color: #D4AF37;
+  }
+  .hover\:bg-gold-dark:hover {
+    background-color: #C9A227;
+  }
+  .hover\:text-gold:hover {
+    color: #D4AF37;
+  }
+  .hover\:border-gold:hover {
+    border-color: #D4AF37;
+  }
+  .ring-gold {
+    --tw-ring-color: #D4AF37;
+  }
 }
 
 /* Animations */
@@ -101,15 +98,10 @@
 
 .prose h2,
 .prose h3 {
-  color: #111827;
+  color: #002F6C;
   font-weight: 700;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
-}
-
-/* Map container */
-.leaflet-container {
-  font-family: inherit;
 }
 
 /* Custom focus styles */
@@ -118,16 +110,42 @@ button:focus {
   outline: none;
 }
 
-/* Smooth transitions */
-* {
-  transition-property: color, background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: ease-in-out;
+/* Premium Hover Effects */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
 }
 
-img,
-.transition-transform {
-  transition-property: transform;
+/* Gold gradient text */
+.gold-text {
+  background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium card shadow */
+.premium-shadow {
+  box-shadow: 0 10px 40px rgba(0, 47, 108, 0.1), 0 4px 12px rgba(212, 175, 55, 0.1);
+}
+
+/* Map marker pulse animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.marker-pulse {
+  animation: pulse 2s infinite;
 }
 
 /* Loading skeleton */
@@ -149,4 +167,38 @@ img,
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+img {
+  transition-property: transform;
+  transition-duration: 500ms;
+}
+
+/* Download button glow */
+.download-glow {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+/* Premium glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Navy gradient */
+.navy-gradient {
+  background: linear-gradient(135deg, #002F6C 0%, #003D8F 100%);
+}
+
+/* Gold gradient */
+.gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%);
 }
