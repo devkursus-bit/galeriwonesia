@@ -98,16 +98,16 @@ const Header = ({ onOpenSearch }) => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg/120px-Lambang_Kementerian_Pariwisata_Republik_Indonesia_%282024%29.svg.png"
+              src="https://kemenpar.go.id/_next/image?url=%2Fimages%2Flogo.png&w=96&q=75"
               alt="Kemenpar"
-              className="h-12 w-12 object-contain"
+              className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
               onError={(e) => { e.target.src = "https://woni.sklmb.co/kemenpar.png"; }}
             />
-            <div className="hidden sm:block">
-              <h1 style={{ color: "#002F6C" }} className="font-bold text-lg leading-tight">Kementerian Pariwisata</h1>
-              <p style={{ color: "#002F6C", opacity: 0.6 }} className="text-xs">Galeri Wonderful Indonesia</p>
+            <div>
+              <h1 style={{ color: "#002F6C" }} className="font-bold text-sm sm:text-lg leading-tight">Kementerian Pariwisata</h1>
+              <p style={{ color: "#002F6C", opacity: 0.6 }} className="text-[10px] sm:text-xs">Galeri Wonderful Indonesia</p>
             </div>
           </Link>
 
