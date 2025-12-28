@@ -207,28 +207,29 @@ const AISearchModal = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-start justify-center pt-16 px-4">
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
         <motion.div initial={{ opacity: 0, y: -30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
+          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
           
-          <div className="bg-gradient-to-r from-navy via-navy-light to-navy p-8 relative overflow-hidden">
+          {/* Header - Fixed */}
+          <div className="bg-gradient-to-r from-navy via-navy-light to-navy p-6 relative overflow-hidden flex-shrink-0">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-gold rounded-full" />
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gold rounded-full" />
             </div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="bg-gold p-3 rounded-xl shadow-lg">
-                    <Sparkles size={28} className="text-navy" />
+                  <div className="bg-gold p-2.5 rounded-xl shadow-lg">
+                    <Sparkles size={24} className="text-navy" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">Pencarian Cerdas AI</h2>
+                    <h2 className="text-xl font-bold text-white">Pencarian Cerdas AI</h2>
                     <p className="text-gray-300 text-sm">Temukan destinasi impian dengan bahasa natural</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="text-gray-300 hover:text-white p-2 hover:bg-white/10 rounded-lg">
+                <button onClick={onClose} className="text-gray-300 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
                   <X size={24} />
                 </button>
               </div>
@@ -238,15 +239,15 @@ const AISearchModal = ({ isOpen, onClose }) => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="w-full px-6 py-4 pr-16 rounded-xl text-navy text-lg placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg bg-white"
+                  className="w-full px-5 py-3.5 pr-14 rounded-xl text-navy text-base placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gold/50 shadow-lg bg-white"
                   autoFocus
                 />
                 <button onClick={handleSearch} disabled={loading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-3 rounded-lg hover:bg-gold-dark transition disabled:opacity-50 shadow-md">
-                  {loading ? <Loader2 size={24} className="animate-spin" /> : <Search size={24} />}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gold text-navy p-2.5 rounded-lg hover:bg-gold-dark transition disabled:opacity-50 shadow-md">
+                  {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2 mt-4">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {["Pantai Bali", "Candi Jawa", "Raja Ampat", "Danau Toba", "Komodo"].map((tag) => (
                   <button key={tag} onClick={() => { setQuery(tag); }}
                     className="bg-gold/30 hover:bg-gold/50 text-white px-3 py-1 rounded-full text-sm transition font-medium">
@@ -257,12 +258,13 @@ const AISearchModal = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="p-6 overflow-y-auto max-h-[50vh] bg-gray-50">
+          {/* Results - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
             {results ? (
               <div>
                 {results.interpreted_query && (
                   <div className="mb-4 p-3 bg-navy/5 rounded-lg border border-navy/10">
-                    <p className="text-sm text-navy/70">
+                    <p className="text-sm text-navy">
                       <span className="font-semibold">AI memahami:</span>{" "}
                       {[results.interpreted_query.province, results.interpreted_query.category, results.interpreted_query.keywords].filter(Boolean).join(" • ")}
                     </p>
@@ -272,7 +274,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {results.articles.map((article) => (
                       <div key={article.id} onClick={() => goToDetail(article.id)}
-                        className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
+                        className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition border border-gray-100">
                         <div className="aspect-video overflow-hidden relative">
                           <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
@@ -293,12 +295,12 @@ const AISearchModal = ({ isOpen, onClose }) => {
                 )}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="bg-gold/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles size={48} className="text-gold" />
+              <div className="text-center py-8">
+                <div className="bg-gold/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles size={40} className="text-gold" />
                 </div>
                 <p className="text-navy font-medium text-lg">Ketik pencarian dengan bahasa natural</p>
-                <p className="text-gray-500 mt-2">Contoh: "tempat romantis untuk honeymoon" atau "wisata alam di Sulawesi"</p>
+                <p className="text-gray-500 mt-2 text-sm">Contoh: "tempat romantis untuk honeymoon" atau "wisata alam di Sulawesi"</p>
               </div>
             )}
           </div>
