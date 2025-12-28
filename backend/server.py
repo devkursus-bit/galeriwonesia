@@ -198,6 +198,8 @@ async def get_articles(
     
     if sort_by == "popular":
         query += " ORDER BY a.total_view DESC"
+    elif sort_by == "downloads":
+        query += " ORDER BY total_download DESC"
     else:
         query += " ORDER BY a.posting_date DESC"
     
