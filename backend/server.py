@@ -1,70 +1,476 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Query, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
-
+from pydantic import BaseModel
+from typing import List, Optional
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from openai import OpenAI
+import json
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# PostgreSQL connection
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.environ.get('PG_HOST'),
+        port=os.environ.get('PG_PORT'),
+        database=os.environ.get('PG_DATABASE'),
+        user=os.environ.get('PG_USER'),
+        password=os.environ.get('PG_PASSWORD'),
+        cursor_factory=RealDictCursor
+    )
 
-# Create the main app without a prefix
+# OpenAI client
+openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+
+# Create the main app
 app = FastAPI()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Models
+class Province(BaseModel):
+    id: int
+    name: str
+    article_count: Optional[int] = 0
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+class Article(BaseModel):
+    id: int
+    title: str
+    thumbnail: str
+    is_video: bool
+    total_view: int
+    province_name: Optional[str] = None
+    city_name: Optional[str] = None
+    tags: Optional[str] = None
+    posting_date: Optional[str] = None
+    category: Optional[str] = None
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class ArticleDetail(BaseModel):
+    id: int
+    title: str
+    thumbnail: str
+    is_video: bool
+    video_url: Optional[str] = None
+    total_view: int
+    province_name: Optional[str] = None
+    city_name: Optional[str] = None
+    tags: Optional[str] = None
+    posting_date: Optional[str] = None
+    category: Optional[str] = None
+    content: Optional[str] = None
+    images: List[dict] = []
 
-# Add your routes to the router instead of directly to app
+class SearchRequest(BaseModel):
+    query: str
+
+class AIRecommendation(BaseModel):
+    recommendation: str
+    articles: List[Article]
+
+# Province coordinates for map
+PROVINCE_COORDINATES = {
+    "ACEH": {"lat": 4.6951, "lng": 96.7494},
+    "SUMATERA UTARA": {"lat": 2.1154, "lng": 99.5451},
+    "SUMATERA BARAT": {"lat": -0.7399, "lng": 100.8000},
+    "RIAU": {"lat": 0.2933, "lng": 101.7068},
+    "JAMBI": {"lat": -1.4852, "lng": 102.4381},
+    "SUMATERA SELATAN": {"lat": -3.3194, "lng": 103.9144},
+    "BENGKULU": {"lat": -3.5778, "lng": 102.3464},
+    "LAMPUNG": {"lat": -4.5586, "lng": 105.4068},
+    "KEPULAUAN BANGKA BELITUNG": {"lat": -2.7411, "lng": 106.4406},
+    "KEPULAUAN RIAU": {"lat": 3.9457, "lng": 108.1429},
+    "DKI JAKARTA": {"lat": -6.2088, "lng": 106.8456},
+    "JAWA BARAT": {"lat": -6.9175, "lng": 107.6191},
+    "JAWA TENGAH": {"lat": -7.1510, "lng": 110.1403},
+    "DI YOGYAKARTA": {"lat": -7.7956, "lng": 110.3695},
+    "JAWA TIMUR": {"lat": -7.5361, "lng": 112.2384},
+    "BANTEN": {"lat": -6.4058, "lng": 106.0640},
+    "BALI": {"lat": -8.3405, "lng": 115.0920},
+    "NUSA TENGGARA BARAT": {"lat": -8.6529, "lng": 117.3616},
+    "NUSA TENGGARA TIMUR": {"lat": -8.6574, "lng": 121.0794},
+    "KALIMANTAN BARAT": {"lat": -0.2788, "lng": 111.4753},
+    "KALIMANTAN TENGAH": {"lat": -1.6815, "lng": 113.3824},
+    "KALIMANTAN SELATAN": {"lat": -3.0926, "lng": 115.2838},
+    "KALIMANTAN TIMUR": {"lat": 1.6407, "lng": 116.4194},
+    "KALIMANTAN UTARA": {"lat": 3.0731, "lng": 116.0413},
+    "SULAWESI UTARA": {"lat": 0.6247, "lng": 123.9750},
+    "SULAWESI TENGAH": {"lat": -1.4300, "lng": 121.4456},
+    "SULAWESI SELATAN": {"lat": -3.6688, "lng": 119.9741},
+    "SULAWESI TENGGARA": {"lat": -4.1449, "lng": 122.1746},
+    "GORONTALO": {"lat": 0.6999, "lng": 122.4467},
+    "SULAWESI BARAT": {"lat": -2.8442, "lng": 119.2321},
+    "MALUKU": {"lat": -3.2385, "lng": 130.1453},
+    "MALUKU UTARA": {"lat": 1.5710, "lng": 127.8088},
+    "PAPUA": {"lat": -4.2699, "lng": 138.0804},
+    "PAPUA BARAT": {"lat": -1.3361, "lng": 133.1747},
+    "PAPUA TENGAH": {"lat": -3.5896, "lng": 135.8027},
+    "PAPUA PEGUNUNGAN": {"lat": -4.0898, "lng": 138.9399},
+    "PAPUA SELATAN": {"lat": -6.5000, "lng": 140.0000},
+    "PAPUA BARAT DAYA": {"lat": -2.5000, "lng": 132.0000},
+}
+
+# Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Wonderful Indonesia API"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+@api_router.get("/provinces", response_model=List[Province])
+async def get_provinces():
+    """Get all provinces with article count"""
+    conn = get_db_connection()
+    cur = conn.cursor()
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
+    cur.execute("""
+        SELECT p.id, p.name, COUNT(a.id) as article_count
+        FROM "Province" p
+        LEFT JOIN "Article" a ON p.id = a.id_province AND a.is_active = true
+        GROUP BY p.id, p.name
+        ORDER BY p.name
+    """)
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    provinces = []
+    for row in cur.fetchall():
+        coords = PROVINCE_COORDINATES.get(row['name'], {"lat": 0, "lng": 0})
+        provinces.append({
+            "id": row['id'],
+            "name": row['name'],
+            "article_count": row['article_count'],
+            "lat": coords['lat'],
+            "lng": coords['lng']
+        })
+    
+    cur.close()
+    conn.close()
+    return provinces
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/articles", response_model=List[Article])
+async def get_articles(
+    province_id: Optional[int] = None,
+    category_id: Optional[int] = None,
+    is_video: Optional[bool] = None,
+    search: Optional[str] = None,
+    sort_by: str = Query("recent", enum=["recent", "popular"]),
+    limit: int = 20,
+    offset: int = 0
+):
+    """Get articles with filters"""
+    conn = get_db_connection()
+    cur = conn.cursor()
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    query = """
+        SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
+               p.name as province_name, c.name as city_name, 
+               a.tags_csv as tags, a.posting_date, cat.label as category
+        FROM "Article" a
+        LEFT JOIN "Province" p ON a.id_province = p.id
+        LEFT JOIN "City" c ON a.id_city = c.id
+        LEFT JOIN "Category" cat ON a.id_category = cat.id
+        WHERE a.is_active = true
+    """
+    params = []
     
-    return status_checks
+    if province_id:
+        query += " AND a.id_province = %s"
+        params.append(province_id)
+    
+    if category_id:
+        query += " AND a.id_category = %s"
+        params.append(category_id)
+    
+    if is_video is not None:
+        query += " AND a.is_video = %s"
+        params.append(is_video)
+    
+    if search:
+        query += " AND (LOWER(a.title) LIKE LOWER(%s) OR LOWER(a.tags_csv) LIKE LOWER(%s))"
+        search_param = f"%{search}%"
+        params.extend([search_param, search_param])
+    
+    if sort_by == "popular":
+        query += " ORDER BY a.total_view DESC"
+    else:
+        query += " ORDER BY a.posting_date DESC"
+    
+    query += " LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
+    
+    cur.execute(query, params)
+    articles = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return articles
+
+@api_router.get("/articles/{article_id}", response_model=ArticleDetail)
+async def get_article_detail(article_id: int):
+    """Get article detail with content and images"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Get article
+    cur.execute("""
+        SELECT a.id, a.title, a.thumbnail, a.is_video, a.video_url, a.total_view,
+               p.name as province_name, c.name as city_name, 
+               a.tags_csv as tags, a.posting_date, cat.label as category
+        FROM "Article" a
+        LEFT JOIN "Province" p ON a.id_province = p.id
+        LEFT JOIN "City" c ON a.id_city = c.id
+        LEFT JOIN "Category" cat ON a.id_category = cat.id
+        WHERE a.id = %s AND a.is_active = true
+    """, [article_id])
+    
+    article = cur.fetchone()
+    if not article:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    # Get content
+    cur.execute("""
+        SELECT content FROM "ArticleContent" WHERE id_article = %s
+    """, [article_id])
+    content_row = cur.fetchone()
+    content = content_row['content'] if content_row else None
+    
+    # Get images
+    cur.execute("""
+        SELECT id, thumbnail, image_url, total_download
+        FROM "ArticleContentImage" WHERE id_article = %s
+    """, [article_id])
+    images = cur.fetchall()
+    
+    # Increment view count
+    cur.execute("""
+        UPDATE "Article" SET total_view = total_view + 1 WHERE id = %s
+    """, [article_id])
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    
+    return {
+        **dict(article),
+        "content": content,
+        "images": [dict(img) for img in images]
+    }
+
+@api_router.get("/categories")
+async def get_categories():
+    """Get all categories"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT c.id, c.label, c.slug, c.thumbnail, COUNT(a.id) as article_count
+        FROM "Category" c
+        LEFT JOIN "Article" a ON c.id = a.id_category AND a.is_active = true
+        GROUP BY c.id, c.label, c.slug, c.thumbnail
+        ORDER BY c.label
+    """)
+    
+    categories = cur.fetchall()
+    cur.close()
+    conn.close()
+    return categories
+
+@api_router.get("/popular-tags")
+async def get_popular_tags():
+    """Get popular tags"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT tag, count FROM "PopularTag" ORDER BY count DESC LIMIT 20
+    """)
+    
+    tags = cur.fetchall()
+    cur.close()
+    conn.close()
+    return tags
+
+@api_router.get("/stats")
+async def get_stats():
+    """Get statistics"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true")
+    total_articles = cur.fetchone()['total']
+    
+    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = false")
+    total_photos = cur.fetchone()['total']
+    
+    cur.execute("SELECT COUNT(*) as total FROM \"Article\" WHERE is_active = true AND is_video = true")
+    total_videos = cur.fetchone()['total']
+    
+    cur.execute("SELECT COUNT(*) as total FROM \"Province\"")
+    total_provinces = cur.fetchone()['total']
+    
+    cur.close()
+    conn.close()
+    
+    return {
+        "total_articles": total_articles,
+        "total_photos": total_photos,
+        "total_videos": total_videos,
+        "total_provinces": total_provinces
+    }
+
+@api_router.post("/ai/search")
+async def ai_search(request: SearchRequest):
+    """AI-powered natural language search"""
+    try:
+        # Get all provinces and categories for context
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("SELECT name FROM \"Province\"")
+        provinces = [row['name'] for row in cur.fetchall()]
+        
+        cur.execute("SELECT label FROM \"Category\"")
+        categories = [row['label'] for row in cur.fetchall()]
+        
+        # Use AI to understand the query
+        system_prompt = f"""Kamu adalah asisten pencarian wisata Indonesia. 
+Tugasmu adalah menganalisis query pencarian dan mengekstrak:
+1. province: nama provinsi yang dimaksud (harus salah satu dari: {', '.join(provinces)}) atau null
+2. category: kategori wisata (harus salah satu dari: {', '.join(categories)}) atau null  
+3. keywords: kata kunci pencarian
+4. is_video: true jika mencari video, false jika foto, null jika tidak spesifik
+
+Jawab dalam format JSON:
+{{"province": "...", "category": "...", "keywords": "...", "is_video": null}}"""
+
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": request.query}
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=200
+        )
+        
+        ai_result = json.loads(response.choices[0].message.content)
+        
+        # Build search query
+        query = """
+            SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
+                   p.name as province_name, c.name as city_name, 
+                   a.tags_csv as tags, a.posting_date, cat.label as category
+            FROM "Article" a
+            LEFT JOIN "Province" p ON a.id_province = p.id
+            LEFT JOIN "City" c ON a.id_city = c.id
+            LEFT JOIN "Category" cat ON a.id_category = cat.id
+            WHERE a.is_active = true
+        """
+        params = []
+        
+        if ai_result.get('province'):
+            query += " AND LOWER(p.name) LIKE LOWER(%s)"
+            params.append(f"%{ai_result['province']}%")
+        
+        if ai_result.get('category'):
+            query += " AND LOWER(cat.label) LIKE LOWER(%s)"
+            params.append(f"%{ai_result['category']}%")
+        
+        if ai_result.get('keywords'):
+            query += " AND (LOWER(a.title) LIKE LOWER(%s) OR LOWER(a.tags_csv) LIKE LOWER(%s))"
+            keywords = f"%{ai_result['keywords']}%"
+            params.extend([keywords, keywords])
+        
+        if ai_result.get('is_video') is not None:
+            query += " AND a.is_video = %s"
+            params.append(ai_result['is_video'])
+        
+        query += " ORDER BY a.total_view DESC LIMIT 12"
+        
+        cur.execute(query, params)
+        articles = cur.fetchall()
+        
+        cur.close()
+        conn.close()
+        
+        return {
+            "interpreted_query": ai_result,
+            "articles": [dict(a) for a in articles]
+        }
+        
+    except Exception as e:
+        logging.error(f"AI search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/ai/recommend/{province_id}")
+async def ai_recommend(province_id: int):
+    """Get AI recommendations for a province"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Get province info
+        cur.execute("SELECT name FROM \"Province\" WHERE id = %s", [province_id])
+        province_row = cur.fetchone()
+        if not province_row:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="Province not found")
+        
+        province_name = province_row['name']
+        
+        # Get top articles from this province
+        cur.execute("""
+            SELECT a.id, a.title, a.thumbnail, a.is_video, a.total_view,
+                   p.name as province_name, c.name as city_name, 
+                   a.tags_csv as tags, a.posting_date, cat.label as category
+            FROM "Article" a
+            LEFT JOIN "Province" p ON a.id_province = p.id
+            LEFT JOIN "City" c ON a.id_city = c.id
+            LEFT JOIN "Category" cat ON a.id_category = cat.id
+            WHERE a.is_active = true AND a.id_province = %s
+            ORDER BY a.total_view DESC
+            LIMIT 8
+        """, [province_id])
+        
+        articles = [dict(a) for a in cur.fetchall()]
+        
+        cur.close()
+        conn.close()
+        
+        # Generate AI recommendation
+        if articles:
+            article_titles = [a['title'] for a in articles[:5]]
+            
+            response = openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Kamu adalah pemandu wisata Indonesia yang ramah dan informatif. Berikan rekomendasi singkat dan menarik dalam 2-3 kalimat."},
+                    {"role": "user", "content": f"Berikan rekomendasi wisata singkat untuk provinsi {province_name}. Beberapa destinasi populer di sana: {', '.join(article_titles)}"}
+                ],
+                max_tokens=150
+            )
+            
+            recommendation = response.choices[0].message.content
+        else:
+            recommendation = f"Jelajahi keindahan {province_name}! Provinsi ini menyimpan banyak destinasi wisata menarik yang menunggu untuk ditemukan."
+        
+        return {
+            "province_name": province_name,
+            "recommendation": recommendation,
+            "articles": articles
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"AI recommend error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -83,7 +489,3 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
