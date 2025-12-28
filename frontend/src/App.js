@@ -732,10 +732,15 @@ const HomePage = () => {
         axios.get(`${API}/stats`),
         axios.get(`${API}/categories`),
       ]);
-      setProvinces(provRes.data);
-      setStats(statsRes.data);
-      setCategories(catRes.data);
-    } catch (e) { console.error(e); }
+      setProvinces(Array.isArray(provRes.data) ? provRes.data : []);
+      setStats(statsRes.data || {});
+      setCategories(Array.isArray(catRes.data) ? catRes.data : []);
+    } catch (e) { 
+      console.error(e);
+      setProvinces([]);
+      setStats({});
+      setCategories([]);
+    }
   };
 
   const loadArticles = async () => {
@@ -747,8 +752,11 @@ const HomePage = () => {
       if (filter.isVideo !== null) params.append("is_video", filter.isVideo);
       if (filter.provinceId) params.append("province_id", filter.provinceId);
       const res = await axios.get(`${API}/articles?${params.toString()}`);
-      setArticles(res.data);
-    } catch (e) { console.error(e); }
+      setArticles(Array.isArray(res.data) ? res.data : []);
+    } catch (e) { 
+      console.error(e);
+      setArticles([]);
+    }
     setLoadingArticles(false);
   };
 
