@@ -9,7 +9,6 @@ import {
   Geographies,
   Geography,
   Marker,
-  ZoomableGroup,
 } from "react-simple-maps";
 import {
   Search,
@@ -342,62 +341,61 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
         projectionConfig={{ scale: 1200, center: [118, -2] }}
         style={{ width: "100%", height: "auto" }}
       >
-        <ZoomableGroup zoom={1} minZoom={1} maxZoom={4}>
-          <Geographies geography={geoData}>
-            {({ geographies }) =>
-              geographies.map((geo) => {
-                const provData = getProvinceData(geo.properties.Propinsi);
-                const isSelected = selectedProvince?.name === PROVINCE_NAME_MAP[geo.properties.Propinsi];
-                return (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    onClick={() => provData && onProvinceClick(provData)}
-                    style={{
-                      default: {
-                        fill: isSelected ? "#FFCC00" : "#D4AF37",
-                        stroke: "#002F6C",
-                        strokeWidth: 0.5,
-                        outline: "none",
-                      },
-                      hover: {
-                        fill: "#FFCC00",
-                        stroke: "#002F6C",
-                        strokeWidth: 1,
-                        outline: "none",
-                        cursor: "pointer",
-                      },
-                      pressed: {
-                        fill: "#C9A227",
-                        stroke: "#002F6C",
-                        strokeWidth: 1,
-                        outline: "none",
-                      },
-                    }}
-                  />
-                );
-              })
-            }
-          </Geographies>
-          {/* Markers with article count */}
-          {provinces.map((province) => {
-            const coords = Object.entries(PROVINCE_NAME_MAP).find(([k, v]) => v === province.name);
-            if (!coords) return null;
-            const position = PROVINCE_COORDS[coords[0]];
-            if (!position) return null;
-            
-            return (
-              <Marker key={province.id} coordinates={position}>
-                <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
-                  <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
-                  <text textAnchor="middle" y={3} style={{ fontSize: 7, fill: "#FFCC00", fontWeight: "bold" }}>
-                    {province.article_count}
-                  </text>
-                </g>
-              </Marker>
-            );
-          })}
-        </ZoomableGroup>
+        {/* Peta dikunci - tanpa ZoomableGroup untuk disable zoom/pan */}
+        <Geographies geography={geoData}>
+          {({ geographies }) =>
+            geographies.map((geo) => {
+              const provData = getProvinceData(geo.properties.Propinsi);
+              const isSelected = selectedProvince?.name === PROVINCE_NAME_MAP[geo.properties.Propinsi];
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  onClick={() => provData && onProvinceClick(provData)}
+                  style={{
+                    default: {
+                      fill: isSelected ? "#FFCC00" : "#D4AF37",
+                      stroke: "#002F6C",
+                      strokeWidth: 0.5,
+                      outline: "none",
+                    },
+                    hover: {
+                      fill: "#FFCC00",
+                      stroke: "#002F6C",
+                      strokeWidth: 1,
+                      outline: "none",
+                      cursor: "pointer",
+                    },
+                    pressed: {
+                      fill: "#C9A227",
+                      stroke: "#002F6C",
+                      strokeWidth: 1,
+                      outline: "none",
+                    },
+                  }}
+                />
+              );
+            })
+          }
+        </Geographies>
+        {/* Markers with article count */}
+        {provinces.map((province) => {
+          const coords = Object.entries(PROVINCE_NAME_MAP).find(([k, v]) => v === province.name);
+          if (!coords) return null;
+          const position = PROVINCE_COORDS[coords[0]];
+          if (!position) return null;
+          
+          return (
+            <Marker key={province.id} coordinates={position}>
+              <g onClick={() => onProvinceClick(province)} style={{ cursor: "pointer" }}>
+                <circle r={8} fill="#002F6C" stroke="#FFCC00" strokeWidth={2} />
+                <text textAnchor="middle" y={3} style={{ fontSize: 7, fill: "#FFCC00", fontWeight: "bold" }}>
+                  {province.article_count}
+                </text>
+              </g>
+            </Marker>
+          );
+        })}
       </ComposableMap>
     </div>
   );
