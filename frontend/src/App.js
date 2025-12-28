@@ -706,11 +706,11 @@ const HomePage = () => {
       <section className="pt-24 pb-12 bg-gradient-to-b from-navy via-navy-light to-navy">
         <div className="container mx-auto px-4 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-gold">Galeri</span> <span className="text-gold">Wonderful Indonesia</span>
+            className="text-4xl md:text-5xl font-bold mb-4 text-gold">
+            Galeri Wonderful Indonesia
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-white text-lg mb-8 max-w-2xl mx-auto">
+            className="text-gold/80 text-lg mb-8 max-w-2xl mx-auto">
             Download gratis foto & video pariwisata Indonesia berkualitas tinggi
           </motion.p>
 
