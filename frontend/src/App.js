@@ -689,7 +689,7 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
 
       <div className="p-4 bg-black/50" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-center gap-2 overflow-x-auto max-w-4xl mx-auto scrollbar-hide">
-          {images.slice(0, 10).map((img, idx) => (
+          {Array.isArray(images) && images.slice(0, 10).map((img, idx) => (
             <button key={img.id || idx} onClick={() => onNavigate(idx)}
               className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all
                 ${idx === currentIndex ? 'ring-2 ring-gold scale-110' : 'opacity-50 hover:opacity-80'}`}>
