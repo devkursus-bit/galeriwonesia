@@ -20,10 +20,15 @@ import {
   TrendingUp,
   Download,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Filter,
   Sun,
   Maximize2,
   Globe,
+  ZoomIn,
+  Info,
+  Share2,
 } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
