@@ -417,7 +417,7 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
           }
         </Geographies>
         {/* Markers with article count */}
-        {provinces.map((province) => {
+        {Array.isArray(provinces) && provinces.map((province) => {
           const coords = Object.entries(PROVINCE_NAME_MAP).find(([k, v]) => v === province.name);
           if (!coords) return null;
           const position = PROVINCE_COORDS[coords[0]];
