@@ -1043,7 +1043,7 @@ const DetailPage = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto scrollbar-hide">
-                  {allImages.map((img, idx) => (
+                  {Array.isArray(allImages) && allImages.map((img, idx) => (
                     <div key={img.id || idx} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true); }}
                       className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group">
                       <img src={img.thumbnail} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
