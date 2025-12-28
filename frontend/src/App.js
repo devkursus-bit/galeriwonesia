@@ -103,8 +103,8 @@ const Header = ({ onOpenSearch }) => {
               onError={(e) => { e.target.src = "https://woni.sklmb.co/kemenpar.png"; }}
             />
             <div className="hidden sm:block">
-              <h1 className="text-navy font-bold text-lg leading-tight">Kementerian Pariwisata</h1>
-              <p className="text-navy/60 text-xs">Galeri Wonderful Indonesia</p>
+              <h1 style={{ color: "#002F6C" }} className="font-bold text-lg leading-tight">Kementerian Pariwisata</h1>
+              <p style={{ color: "#002F6C", opacity: 0.6 }} className="text-xs">Galeri Wonderful Indonesia</p>
             </div>
           </Link>
 
