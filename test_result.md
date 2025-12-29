@@ -177,7 +177,7 @@ frontend:
 
   - task: "Mobile Province Bottom Sheet"
     implemented: true
-    working: false
+    working: "partial"
     file: "/app/frontend/src/App.js"
     stuck_count: 2
     priority: "high"
@@ -192,6 +192,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUES FOUND: (1) Content scrolling completely broken - scrollTop remains 0 despite scroll attempts, (2) Swipe-to-close gesture not working, (3) Close button has overlay interception preventing clicks, (4) Bottom sheet structure exists but core functionality non-functional. Requires immediate fix to scroll implementation and touch event handling."
+      - working: "partial"
+        agent: "testing"
+        comment: "MOBILE TESTING V2 RESULTS (375x812): ✅ IMPROVEMENTS: (1) Bottom sheet appears successfully with correct z-index hierarchy (backdrop z-60, sheet z-70), (2) Panel structure and styling working correctly. ❌ REMAINING ISSUES: (1) Map marker click functionality inconsistent - sometimes triggers, sometimes doesn't, (2) Close button, content scrolling, backdrop click, and swipe gestures need verification but couldn't test due to map interaction issues. RECOMMENDATION: Fix map marker click reliability first, then retest all interactions."
 
   - task: "Map locked (no zoom/pan)"
     implemented: true
