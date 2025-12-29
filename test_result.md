@@ -165,6 +165,27 @@ frontend:
       - working: true
         agent: "main"
         comment: "Modal header sekarang terlihat jelas dengan background navy solid. Tags dan input field berfungsi."
+      - working: false
+        agent: "user"
+        comment: "User melaporkan modal AI Search bergerak-gerak sendiri saat di scroll di HP"
+      - working: "pending"
+        agent: "main"
+        comment: "Sudah tambahkan body scroll lock saat modal terbuka untuk mencegah background scrolling di mobile"
+
+  - task: "Mobile Province Bottom Sheet"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User melaporkan: (1) Bottom sheet tidak stabil saat di scroll di HP, (2) Tidak bisa scroll konten di dalam panel"
+      - working: "pending"
+        agent: "main"
+        comment: "Perbaikan: (1) Memisahkan drag handle dari scroll area, (2) Drag-to-close hanya berfungsi pada handle bar di atas, (3) Menambahkan body scroll lock, (4) Content area sekarang scrollable secara terpisah dengan overscroll-contain"
 
   - task: "Map locked (no zoom/pan)"
     implemented: true
@@ -172,7 +193,7 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -196,7 +217,7 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -208,7 +229,7 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
