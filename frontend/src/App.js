@@ -456,15 +456,42 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
 };
 
 // ============================================
-// PROVINCE PANEL
+// PROVINCE PANEL (Desktop + Mobile Bottom Sheet)
 // ============================================
 const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   const navigate = useNavigate();
+  const [startY, setStartY] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
   if (!province) return null;
 
-  return (
+  // Handle swipe down to close
+  const handleTouchStart = (e) => {
+    setStartY(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const diff = e.touches[0].clientY - startY;
+    if (diff > 0) setCurrentY(diff);
+  };
+
+  const handleTouchEnd = () => {
+    if (currentY > 100) {
+      onClose();
+    }
+    setCurrentY(0);
+    setIsDragging(false);
+  };
+
+  const previewPhotos = Array.isArray(recommendation?.articles) ? recommendation.articles.slice(0, 4) : [];
+
+  // Desktop Panel (side panel)
+  const DesktopPanel = () => (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-      className="absolute right-4 top-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10" style={{ maxHeight: "95%" }}>
+      className="hidden md:block absolute right-4 top-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10" style={{ maxHeight: "95%" }}>
       <div className="bg-navy p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -487,9 +514,9 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
                 <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
               </div>
             )}
-            {recommendation?.articles?.length > 0 && (
+            {previewPhotos.length > 0 && (
               <div className="space-y-3">
-                {Array.isArray(recommendation?.articles) && recommendation.articles.slice(0, 4).map((article) => (
+                {previewPhotos.map((article) => (
                   <Link key={article.id} to={`/detail/${article.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
                     <img src={article.thumbnail} alt="" loading="lazy" className="w-14 h-14 rounded-lg object-cover" />
@@ -514,6 +541,117 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         </button>
       </div>
     </motion.div>
+  );
+
+  // Mobile Bottom Sheet
+  const MobileBottomSheet = () => (
+    <>
+      {/* Backdrop */}
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="md:hidden fixed inset-0 bg-black/40 z-50"
+        onClick={onClose}
+      />
+      
+      {/* Bottom Sheet */}
+      <motion.div 
+        initial={{ y: "100%" }} 
+        animate={{ y: currentY }} 
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Drag Handle */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+        </div>
+
+        {/* Header */}
+        <div className="bg-navy mx-4 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gold p-2 rounded-lg">
+                <MapPin size={20} className="text-navy" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-lg">{province.name}</h3>
+                <p className="text-gold text-sm font-medium">{province.article_count} Galeri</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg">
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: "calc(85vh - 180px)" }}>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={40} className="animate-spin text-gold" />
+            </div>
+          ) : (
+            <>
+              {/* AI Recommendation */}
+              {recommendation?.recommendation && (
+                <div className="mb-4 p-4 bg-gradient-to-r from-navy/5 to-gold/5 rounded-xl border border-navy/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles size={16} className="text-gold" />
+                    <span className="text-xs font-semibold text-navy">Rekomendasi AI</span>
+                  </div>
+                  <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
+                </div>
+              )}
+
+              {/* Preview Photos Grid */}
+              {previewPhotos.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-navy mb-3">Galeri Populer</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {previewPhotos.map((article) => (
+                      <Link key={article.id} to={`/detail/${article.id}`}
+                        className="group rounded-xl overflow-hidden shadow-md">
+                        <div className="aspect-[4/3] relative">
+                          <img src={article.thumbnail} alt="" loading="lazy" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <p className="text-white text-xs font-medium line-clamp-2">{article.title}</p>
+                            <p className="text-white/70 text-xs flex items-center gap-1 mt-1">
+                              <Eye size={10} /> {article.total_view?.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer Button */}
+        <div className="p-4 bg-gray-50 border-t">
+          <button onClick={() => { onClose(); navigate(`/gallery?province=${province.id}`); }}
+            className="w-full bg-navy text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-navy-light transition shadow-lg">
+            Lihat Semua Galeri <ArrowRight size={18} />
+          </button>
+        </div>
+      </motion.div>
+    </>
+  );
+
+  return (
+    <>
+      <DesktopPanel />
+      <MobileBottomSheet />
+    </>
   );
 };
 
