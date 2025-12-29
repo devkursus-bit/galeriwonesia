@@ -482,14 +482,21 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   const [dragY, setDragY] = useState(0);
   const [startY, setStartY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
 
   // Lock body scroll when mobile panel is open
   useEffect(() => {
-    if (province && window.innerWidth < 768) {
+    if (province && isMobile) {
+      const scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
-      document.body.style.top = `-${window.scrollY}px`;
+      document.body.style.top = `-${scrollY}px`;
     }
     return () => {
       const scrollY = document.body.style.top;
@@ -501,7 +508,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
       }
     };
-  }, [province]);
+  }, [province, isMobile]);
 
   if (!province) return null;
 
@@ -520,9 +527,8 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
     e.stopPropagation();
     const touch = e.touches[0];
     const diff = touch.clientY - startY;
-    // Only allow downward drag (positive diff)
     if (diff > 0) {
-      setDragY(Math.min(diff, 200)); // Limit max drag
+      setDragY(Math.min(diff, 200));
     }
   };
 
@@ -538,65 +544,67 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
 
   const previewPhotos = Array.isArray(recommendation?.articles) ? recommendation.articles.slice(0, 4) : [];
 
-  // Desktop Panel (side panel)
-  const DesktopPanel = () => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-      className="hidden md:block absolute right-4 top-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10" style={{ maxHeight: "95%" }}>
-      <div className="bg-navy p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-bold text-white text-lg">{province.name}</h3>
-            <p className="text-gold text-sm font-medium">{province.article_count} Galeri</p>
-          </div>
-          <button onClick={onClose} className="text-white/70 hover:text-white p-1 hover:bg-white/10 rounded"><X size={20} /></button>
-        </div>
-      </div>
-
-      <div className="p-4 overflow-y-auto" style={{ maxHeight: "280px" }}>
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 size={32} className="animate-spin text-gold" />
-          </div>
-        ) : (
-          <>
-            {recommendation?.recommendation && (
-              <div className="mb-4 p-3 bg-navy/5 rounded-lg border border-navy/10">
-                <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
-              </div>
-            )}
-            {previewPhotos.length > 0 && (
-              <div className="space-y-3">
-                {previewPhotos.map((article) => (
-                  <Link key={article.id} to={`/detail/${article.id}`}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
-                    <img src={article.thumbnail} alt="" loading="lazy" className="w-14 h-14 rounded-lg object-cover" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</p>
-                      <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
-                        <Eye size={10} /> {article.total_view?.toLocaleString()}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      
-      <div className="p-4 bg-gray-50 border-t">
-        <button onClick={() => navigate(`/gallery?province=${province.id}`)}
-          className="w-full bg-navy text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-navy-light transition">
-          Lihat Semua <ArrowRight size={16} />
-        </button>
-      </div>
-    </motion.div>
-  );
-
-  // Mobile Bottom Sheet
-  const MobileBottomSheet = () => (
+  return (
     <>
-      {/* Backdrop - MUST be below the sheet z-index wise */}
+      {/* Desktop Panel - side panel */}
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        exit={{ opacity: 0, x: 20 }}
+        className="hidden md:block absolute right-4 top-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden z-10" 
+        style={{ maxHeight: "95%" }}
+      >
+        <div className="bg-navy p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-white text-lg">{province.name}</h3>
+              <p className="text-gold text-sm font-medium">{province.article_count} Galeri</p>
+            </div>
+            <button onClick={onClose} className="text-white/70 hover:text-white p-1 hover:bg-white/10 rounded"><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="p-4 overflow-y-auto" style={{ maxHeight: "280px" }}>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 size={32} className="animate-spin text-gold" />
+            </div>
+          ) : (
+            <>
+              {recommendation?.recommendation && (
+                <div className="mb-4 p-3 bg-navy/5 rounded-lg border border-navy/10">
+                  <p className="text-sm text-navy leading-relaxed">{recommendation.recommendation}</p>
+                </div>
+              )}
+              {previewPhotos.length > 0 && (
+                <div className="space-y-3">
+                  {previewPhotos.map((article) => (
+                    <Link key={article.id} to={`/detail/${article.id}`}
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition group">
+                      <img src={article.thumbnail} alt="" loading="lazy" className="w-14 h-14 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-navy line-clamp-2 group-hover:text-gold">{article.title}</p>
+                        <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
+                          <Eye size={10} /> {article.total_view?.toLocaleString()}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        
+        <div className="p-4 bg-gray-50 border-t">
+          <button onClick={() => navigate(`/gallery?province=${province.id}`)}
+            className="w-full bg-navy text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-navy-light transition">
+            Lihat Semua <ArrowRight size={16} />
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Mobile Bottom Sheet - NO animation on content changes, only on mount/unmount */}
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -605,18 +613,17 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         onClick={onClose}
       />
       
-      {/* Bottom Sheet - Higher z-index than backdrop */}
       <motion.div 
         initial={{ y: "100%" }} 
-        animate={{ y: 0, translateY: dragY }} 
+        animate={{ y: 0 }} 
         exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        style={{ transform: `translateY(${dragY}px)` }}
         className="md:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[70] flex flex-col"
-        style={{ maxHeight: '80vh' }}
       >
-        {/* Drag Handle - swipe down to close */}
+        {/* Drag Handle */}
         <div 
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none flex-shrink-0"
+          className="flex justify-center py-3 cursor-grab select-none flex-shrink-0"
           onTouchStart={handleDragStart}
           onTouchMove={handleDragMove}
           onTouchEnd={handleDragEnd}
@@ -625,7 +632,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
           <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
         </div>
 
-        {/* Header - fixed at top */}
+        {/* Header */}
         <div className="bg-navy mx-4 rounded-xl p-4 mb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -639,17 +646,18 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
             </div>
             <button 
               onClick={(e) => { e.stopPropagation(); onClose(); }} 
-              className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg z-10 relative"
+              className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg"
             >
               <X size={24} />
             </button>
           </div>
         </div>
 
-        {/* Scrollable Content - this should scroll independently */}
+        {/* Scrollable Content */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto px-4 pb-4"
+          className="flex-1 overflow-y-auto px-4 pb-4"
           style={{ 
+            maxHeight: 'calc(80vh - 200px)',
             WebkitOverflowScrolling: 'touch',
             overscrollBehavior: 'contain',
             touchAction: 'pan-y'
@@ -661,7 +669,6 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
             </div>
           ) : (
             <>
-              {/* AI Recommendation */}
               {recommendation?.recommendation && (
                 <div className="mb-4 p-4 bg-gradient-to-r from-navy/5 to-gold/5 rounded-xl border border-navy/10">
                   <div className="flex items-center gap-2 mb-2">
@@ -672,15 +679,14 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
                 </div>
               )}
 
-              {/* Preview Photos Grid */}
               {previewPhotos.length > 0 && (
                 <div className="mb-4">
                   <h4 className="text-sm font-semibold text-navy mb-3">Galeri Populer</h4>
                   <div className="grid grid-cols-2 gap-3">
                     {previewPhotos.map((article) => (
                       <Link key={article.id} to={`/detail/${article.id}`}
-                        className="group rounded-xl overflow-hidden shadow-md"
-                        onClick={(e) => { e.stopPropagation(); onClose(); }}>
+                        onClick={(e) => { e.stopPropagation(); onClose(); }}
+                        className="group rounded-xl overflow-hidden shadow-md">
                         <div className="aspect-[4/3] relative">
                           <img src={article.thumbnail} alt="" loading="lazy" 
                             className="w-full h-full object-cover group-hover:scale-105 transition" />
@@ -701,7 +707,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
           )}
         </div>
 
-        {/* Footer Button - fixed at bottom */}
+        {/* Footer Button */}
         <div className="p-4 bg-gray-50 border-t flex-shrink-0">
           <button 
             onClick={(e) => { e.stopPropagation(); onClose(); navigate(`/gallery?province=${province.id}`); }}
@@ -710,13 +716,6 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
           </button>
         </div>
       </motion.div>
-    </>
-  );
-
-  return (
-    <>
-      <DesktopPanel />
-      <MobileBottomSheet />
     </>
   );
 };
