@@ -179,9 +179,9 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -189,6 +189,9 @@ frontend:
       - working: "pending"
         agent: "main"
         comment: "Perbaikan: (1) Memisahkan drag handle dari scroll area, (2) Drag-to-close hanya berfungsi pada handle bar di atas, (3) Menambahkan body scroll lock, (4) Content area sekarang scrollable secara terpisah dengan overscroll-contain"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUES FOUND: (1) Content scrolling completely broken - scrollTop remains 0 despite scroll attempts, (2) Swipe-to-close gesture not working, (3) Close button has overlay interception preventing clicks, (4) Bottom sheet structure exists but core functionality non-functional. Requires immediate fix to scroll implementation and touch event handling."
 
   - task: "Map locked (no zoom/pan)"
     implemented: true
