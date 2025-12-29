@@ -160,7 +160,7 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -171,6 +171,9 @@ frontend:
       - working: "pending"
         agent: "main"
         comment: "Sudah tambahkan body scroll lock saat modal terbuka untuk mencegah background scrolling di mobile"
+      - working: true
+        agent: "testing"
+        comment: "TESTED MOBILE (375x812): Modal opens successfully via main search area, modal remains stable during content scrolling, body scroll properly locked, close functionality works. AI Search modal is working correctly on mobile."
 
   - task: "Mobile Province Bottom Sheet"
     implemented: true
