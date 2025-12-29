@@ -357,6 +357,32 @@ async def get_article_detail(article_id: int):
         "total_download": total_download
     }
 
+@api_router.post("/images/{image_id}/download")
+async def increment_download(image_id: int):
+    """Increment download count for an image"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Update download count
+        cur.execute("""
+            UPDATE "ArticleContentImage" 
+            SET total_download = COALESCE(total_download, 0) + 1 
+            WHERE id = %s
+            RETURNING total_download
+        """, (image_id,))
+        
+        result = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        if result:
+            return {"success": True, "new_count": result['total_download']}
+        return {"success": False, "message": "Image not found"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
 @api_router.get("/categories")
 async def get_categories():
     """Get all categories"""
