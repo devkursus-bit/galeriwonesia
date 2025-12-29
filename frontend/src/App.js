@@ -487,9 +487,19 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   useEffect(() => {
     if (province && window.innerWidth < 768) {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
     }
     return () => {
+      const scrollY = document.body.style.top;
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     };
   }, [province]);
 
@@ -497,23 +507,29 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
 
   // Handle swipe down to close - ONLY on drag handle area
   const handleDragStart = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    setStartY(e.touches[0].clientY);
+    const touch = e.touches[0];
+    setStartY(touch.clientY);
     setIsDragging(true);
   };
 
   const handleDragMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     e.stopPropagation();
-    const diff = e.touches[0].clientY - startY;
-    // Only allow downward drag
+    const touch = e.touches[0];
+    const diff = touch.clientY - startY;
+    // Only allow downward drag (positive diff)
     if (diff > 0) {
-      setDragY(diff);
+      setDragY(Math.min(diff, 200)); // Limit max drag
     }
   };
 
-  const handleDragEnd = () => {
-    if (dragY > 80) {
+  const handleDragEnd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragY > 60) {
       onClose();
     }
     setDragY(0);
