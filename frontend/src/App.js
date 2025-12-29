@@ -847,7 +847,7 @@ const ArticleCard = ({ article }) => {
 // ============================================
 // LIGHTBOX
 // ============================================
-const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
+const Lightbox = ({ images, currentIndex, onClose, onNavigate, onDownload }) => {
   const [downloading, setDownloading] = useState(false);
   
   if (!images || images.length === 0 || currentIndex < 0) return null;
@@ -859,9 +859,11 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
       const url = currentImage.image_url || currentImage.thumbnail;
       
       // Increment download count in database
-      if (currentImage.id) {
+      if (currentImage.id && currentImage.id !== 'main') {
         try {
           await axios.post(`${API}/images/${currentImage.id}/download`);
+          // Notify parent to update download count
+          if (onDownload) onDownload();
         } catch (e) {
           console.log("Failed to track download:", e);
         }
