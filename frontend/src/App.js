@@ -130,9 +130,11 @@ const Header = ({ onOpenSearch }) => {
           {/* Mobile: Icon buttons */}
           <div className="flex md:hidden items-center gap-2">
             <button onClick={onOpenSearch}
-              className="flex items-center gap-1.5 bg-gold hover:bg-gold-dark text-navy px-3 py-2 rounded-lg font-semibold shadow-md transition">
-              <Search size={16} />
-              <span className="text-sm">AI</span>
+              className="flex items-center gap-1.5 text-navy px-3 py-2 rounded-full font-semibold shadow-lg hover:shadow-xl transition"
+              style={{ background: "linear-gradient(135deg, #FFD700 0%, #FFF8DC 50%, #FFD700 100%)" }}>
+              <Sparkles size={14} />
+              <Search size={14} />
+              <span className="text-sm font-bold">AI</span>
             </button>
             <button className="text-navy p-2" onClick={() => setMenuOpen(!menuOpen)}>
               <Menu size={24} />
