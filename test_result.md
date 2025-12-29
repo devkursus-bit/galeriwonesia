@@ -243,14 +243,17 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Mobile Province Bottom Sheet"
     - "AI Search Modal styling fix"
-    - "Map locked (no zoom/pan)"
-    - "Map marker click for province filter"
-    - "Lightbox gallery"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Mobile Province Bottom Sheet"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
     message: "Telah memperbaiki 3 issue utama: (1) AI Search Modal styling - header sekarang terlihat jelas, (2) Peta dikunci tidak bisa zoom/pan sesuai permintaan user, (3) Klik marker peta sekarang filter gallery dan tampilkan ProvincePanel. Semua sudah ditest via screenshot. Tolong verifikasi lengkap."
+  - agent: "user"
+    message: "User melaporkan 2 bug di mobile: (1) Panel provinsi tidak stabil saat scroll - tidak bisa di-scroll dan gerak-gerak, (2) Modal AI Search bergerak sendiri saat pencarian"
+  - agent: "main"
+    message: "Perbaikan yang dilakukan: (1) Memisahkan drag handle dari content area - sekarang hanya drag handle yang trigger close gesture, (2) Content area scrollable secara independen dengan -webkit-overflow-scrolling: touch, (3) Body scroll lock saat modal/panel terbuka untuk prevent background scrolling, (4) Touch event propagation di-stop untuk mencegah konflik. TOLONG TEST DI MOBILE VIEWPORT (375x812) dengan scenario: buka panel provinsi -> coba scroll konten -> coba swipe down dari handle untuk close"
