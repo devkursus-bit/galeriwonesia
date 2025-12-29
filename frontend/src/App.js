@@ -1250,7 +1250,7 @@ const DetailPage = () => {
       <Header onOpenSearch={() => {}} />
       
       {lightboxOpen && (
-        <Lightbox images={allImages} currentIndex={lightboxIndex} onClose={() => setLightboxOpen(false)} onNavigate={setLightboxIndex} />
+        <Lightbox images={allImages} currentIndex={lightboxIndex} onClose={() => setLightboxOpen(false)} onNavigate={setLightboxIndex} onDownload={handleDownloadComplete} />
       )}
 
       <div className="pt-24 pb-12">
