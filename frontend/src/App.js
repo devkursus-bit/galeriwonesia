@@ -483,6 +483,16 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   const [startY, setStartY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Lock body scroll when mobile panel is open
+  useEffect(() => {
+    if (province && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [province]);
+
   if (!province) return null;
 
   // Handle swipe down to close - ONLY on drag handle area
