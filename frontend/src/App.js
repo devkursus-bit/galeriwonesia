@@ -460,29 +460,34 @@ const IndonesiaMap = ({ provinces, onProvinceClick, selectedProvince }) => {
 // ============================================
 const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
   const navigate = useNavigate();
+  const [dragY, setDragY] = useState(0);
   const [startY, setStartY] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
   if (!province) return null;
 
-  // Handle swipe down to close
-  const handleTouchStart = (e) => {
+  // Handle swipe down to close - ONLY on drag handle area
+  const handleDragStart = (e) => {
+    e.stopPropagation();
     setStartY(e.touches[0].clientY);
     setIsDragging(true);
   };
 
-  const handleTouchMove = (e) => {
+  const handleDragMove = (e) => {
     if (!isDragging) return;
+    e.stopPropagation();
     const diff = e.touches[0].clientY - startY;
-    if (diff > 0) setCurrentY(diff);
+    // Only allow downward drag
+    if (diff > 0) {
+      setDragY(diff);
+    }
   };
 
-  const handleTouchEnd = () => {
-    if (currentY > 100) {
+  const handleDragEnd = () => {
+    if (dragY > 80) {
       onClose();
     }
-    setCurrentY(0);
+    setDragY(0);
     setIsDragging(false);
   };
 
