@@ -211,11 +211,14 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Klik marker peta sekarang memfilter gallery dan menampilkan ProvincePanel dengan rekomendasi AI"
+      - working: true
+        agent: "testing"
+        comment: "TESTED MOBILE: Map markers clickable, bottom sheet appears when province clicked, but content functionality has issues (see Mobile Province Bottom Sheet task for details)"
 
   - task: "Lightbox gallery"
     implemented: true
