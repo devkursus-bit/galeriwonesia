@@ -311,7 +311,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                       <div key={article.id} onClick={() => goToDetail(article.id)}
                         className="cursor-pointer group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition border border-gray-100">
                         <div className="aspect-video overflow-hidden relative">
-                          <img src={article.thumbnail} alt={article.title} loading="lazy" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <img src={article.thumbnail} alt={article.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition" />
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                             <Eye size={10} /> {article.total_view?.toLocaleString()}
                           </div>
@@ -335,7 +335,7 @@ const AISearchModal = ({ isOpen, onClose }) => {
                   <Sparkles size={40} className="text-gold" />
                 </div>
                 <p className="text-navy font-medium text-lg">Ketik pencarian dengan bahasa natural</p>
-                <p className="text-gray-500 mt-2 text-sm">Contoh: "tempat romantis untuk honeymoon" atau "wisata alam di Sulawesi"</p>
+                <p className="text-gray-500 mt-2 text-sm">Contoh: &quot;tempat romantis untuk honeymoon&quot; atau &quot;wisata alam di Sulawesi&quot;</p>
               </div>
             )}
           </div>
