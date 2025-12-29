@@ -857,6 +857,17 @@ const Lightbox = ({ images, currentIndex, onClose, onNavigate }) => {
     setDownloading(true);
     try {
       const url = currentImage.image_url || currentImage.thumbnail;
+      
+      // Increment download count in database
+      if (currentImage.id) {
+        try {
+          await axios.post(`${API}/images/${currentImage.id}/download`);
+        } catch (e) {
+          console.log("Failed to track download:", e);
+        }
+      }
+      
+      // Download the image
       const response = await fetch(url);
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
