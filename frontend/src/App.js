@@ -1224,6 +1224,14 @@ const DetailPage = () => {
     setLoading(false);
   };
 
+  // Handle download count update
+  const handleDownloadComplete = () => {
+    setArticle(prev => prev ? {
+      ...prev,
+      total_download: (prev.total_download || 0) + 1
+    } : prev);
+  };
+
   const allImages = article ? [
     { id: 'main', thumbnail: article.thumbnail, image_url: article.thumbnail },
     ...(Array.isArray(article.images) ? article.images : [])
