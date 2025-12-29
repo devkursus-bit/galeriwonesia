@@ -120,15 +120,24 @@ const Header = ({ onOpenSearch }) => {
             <NavLink to="/videos" label="Video" />
           </nav>
 
+          {/* Desktop: Full button */}
           <button onClick={onOpenSearch}
             className="hidden md:flex items-center gap-2 bg-gold hover:bg-gold-dark text-navy px-5 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl transition">
             <Sparkles size={18} />
             Pencarian AI
           </button>
 
-          <button className="md:hidden text-navy p-2" onClick={() => setMenuOpen(!menuOpen)}>
-            <Menu size={24} />
-          </button>
+          {/* Mobile: Icon buttons */}
+          <div className="flex md:hidden items-center gap-2">
+            <button onClick={onOpenSearch}
+              className="flex items-center gap-1.5 bg-gold hover:bg-gold-dark text-navy px-3 py-2 rounded-lg font-semibold shadow-md transition">
+              <Search size={16} />
+              <span className="text-sm">AI</span>
+            </button>
+            <button className="text-navy p-2" onClick={() => setMenuOpen(!menuOpen)}>
+              <Menu size={24} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -137,9 +146,6 @@ const Header = ({ onOpenSearch }) => {
           <Link to="/" className="block py-2 text-navy hover:text-gold">Beranda</Link>
           <Link to="/gallery" className="block py-2 text-navy hover:text-gold">Galeri</Link>
           <Link to="/videos" className="block py-2 text-navy hover:text-gold">Video</Link>
-          <button onClick={onOpenSearch} className="w-full mt-2 bg-gold text-navy py-2 rounded-lg font-semibold">
-            Pencarian AI
-          </button>
         </div>
       )}
     </header>
