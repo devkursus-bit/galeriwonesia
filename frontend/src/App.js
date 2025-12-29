@@ -563,21 +563,24 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
       {/* Bottom Sheet */}
       <motion.div 
         initial={{ y: "100%" }} 
-        animate={{ y: currentY }} 
+        animate={{ y: dragY }} 
         exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        transition={{ type: "spring", damping: 30, stiffness: 400 }}
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 max-h-[80vh] flex flex-col"
+        style={{ transform: `translateY(${dragY}px)` }}
       >
-        {/* Drag Handle */}
-        <div className="flex justify-center pt-3 pb-2">
+        {/* Drag Handle - ONLY this area triggers drag to close */}
+        <div 
+          className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+        >
           <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="bg-navy mx-4 rounded-xl p-4 mb-4">
+        <div className="bg-navy mx-4 rounded-xl p-4 mb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-gold p-2 rounded-lg">
@@ -594,8 +597,8 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: "calc(85vh - 180px)" }}>
+        {/* Scrollable Content - separate from drag area */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4" style={{ WebkitOverflowScrolling: 'touch' }}>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={40} className="animate-spin text-gold" />
@@ -642,7 +645,7 @@ const ProvincePanel = ({ province, recommendation, loading, onClose }) => {
         </div>
 
         {/* Footer Button */}
-        <div className="p-4 bg-gray-50 border-t">
+        <div className="p-4 bg-gray-50 border-t flex-shrink-0">
           <button onClick={() => { onClose(); navigate(`/gallery?province=${province.id}`); }}
             className="w-full bg-navy text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-navy-light transition shadow-lg">
             Lihat Semua Galeri <ArrowRight size={18} />
