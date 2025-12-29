@@ -199,6 +199,24 @@ const AISearchModal = ({ isOpen, onClose }) => {
   const [results, setResults] = useState(null);
   const navigate = useNavigate();
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
+
   const handleSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
@@ -229,7 +247,8 @@ const AISearchModal = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        style={{ touchAction: 'none' }}>
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
         <motion.div initial={{ opacity: 0, y: -30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
